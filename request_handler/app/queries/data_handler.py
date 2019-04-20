@@ -54,7 +54,7 @@ def upload_file(start_time, query_id):
         try:
             file = Files(filename=request.files['file'].filename)
             db.session.add(file)
-            #handleFile(file.fileid, request.files['file'])
+            handleFile(file.fileid, request.files['file'])
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
                         f"time: <{calc_time(start_time)} ms>")
@@ -89,7 +89,7 @@ def change_file(fileid, start_time, query_id):
         try:
             Data.query.filter_by(fileid=fileid).delete()
             Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
-            #handleFile(fileid, request.files['file'])
+            handleFile(fileid, request.files['file'])
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
                         f"time: <{calc_time(start_time)} ms>")

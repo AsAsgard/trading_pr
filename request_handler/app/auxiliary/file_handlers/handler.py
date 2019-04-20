@@ -8,30 +8,40 @@ from app.auxiliary.file_handlers.parser import parseRow
 from app.auxiliary.file_handlers.uploader import uploadRow
 from flask import abort
 from werkzeug.datastructures import FileStorage
-import csv
+from pandas import read_csv, errors
+from io import StringIO
 
 
 @transactional
 def handleFile(fileid: int, file: FileStorage):
-    with open(file=file.read(), mode="r") as f:
-        reader = csv.reader(f)
-        if not reader:
-            abort(400)
-        # Считываем первую строку
-        title = None
+    str = StringIO(file.stream.readline().decode("utf-8"))
+    if not str:
+        abort(400)
+
+    df = None
+    try:
+        df = read_csv(str, sep='[;,|]', engine="python", header=None)
+    except errors.ParserError:
+        abort(400)
+
+    if df.empty:
+        abort(400)
+    index, title = next(df.iterrows())
+    title = title.tolist()
+
+    # Считываем данные
+    values = None
+    data_schema = DataSchema()
+    data_keys = data_schema.dump(Data()).data.keys()
+    str = StringIO(file.stream.readline().decode("utf-8"))
+    while str:
         try:
-            title = next(reader)
-        except StopIteration:
+            df = read_csv(str, sep='[;,|]', engine="python", names=title)
+        except errors.ParserError:
             abort(400)
-        if not title:
-            abort(400)
-        # Считываем данные
-        values = None
-        data_schema = DataSchema()
-        data_keys = data_schema.dump(Data()).data.keys()
-        for row in reader:
-            values = parseRow(row, title, data_keys)
-            values['fileid'] = fileid
-            uploadRow(values, data_schema)
-        if not values:
-            abort(400)
+        values = parseRow(df, data_keys)
+        values['fileid'] = fileid
+        uploadRow(values, data_schema)
+        str = StringIO(file.stream.readline().decode("utf-8"))
+    if not values:
+        abort(400)
