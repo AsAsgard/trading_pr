@@ -12,7 +12,8 @@ from app.logger import Logger
 from app.auxiliary.transaction import transaction
 from app.db_entities.files_view import Files
 from app.db_entities.data_view import Data
-from app.auxiliary.parser import parseAndUploadData
+from app.auxiliary.file_handlers.handler import handleFile
+from werkzeug.exceptions import HTTPException
 
 data_handler = Blueprint('data_handler', __name__, url_prefix="/data")
 query_counter = 0
@@ -49,19 +50,22 @@ def upload_file(start_time, query_id):
         abort(code)
 
     # Добавление в бд
-    file = Files(filename=request.files['file'].filename)
-
     with transaction():
-        Files.query.add(file)
-        '''
-        Данный блок находится в стадии доработки
-        ----------------------------------------
-        parseAndUploadData(file.fileid, request.files['file'])
-        '''
+        try:
+            file = Files(filename=request.files['file'].filename)
+            db.session.add(file)
+            #handleFile(file.fileid, request.files['file'])
+        except HTTPException as ex:
+            Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                        f"time: <{calc_time(start_time)} ms>")
+            raise
+
+    db.session.commit()
+
     Logger.info(f"Response: Query successed. query_id: <{query_id}>; "
                 f"time: <{calc_time(start_time)} ms>")
 
-    return file.fileid, 200
+    return jsonify(fileid=file.fileid), 200
 
 
 # Изменение файла
@@ -82,13 +86,16 @@ def change_file(fileid, start_time, query_id):
 
     # Изменение в бд
     with transaction():
-        Data.query.filter_by(fileid=fileid).delete()
-        Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
-        '''
-        Данный блок находится в стадии доработки
-        ----------------------------------------
-        parseAndUploadData(fileid, request.files['file'])
-        '''
+        try:
+            Data.query.filter_by(fileid=fileid).delete()
+            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+            #handleFile(fileid, request.files['file'])
+        except HTTPException as ex:
+            Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                        f"time: <{calc_time(start_time)} ms>")
+            raise
+
+    db.session.commit()
 
     Logger.info(f"Response: Query successed. query_id: <{query_id}>; "
                 f"time: <{calc_time(start_time)} ms>")
@@ -106,16 +113,20 @@ def file_info(fileid, start_time, query_id):
                     f"time: <{calc_time(start_time)} ms>")
         abort(code)
 
-    '''
-    Данный блок находится в стадии доработки
-    ----------------------------------------
+    try:
+        # Соединение таблиц и получение информации
+        fileinf = db.session.query(Files, func.count(Data.fileid).label('count_rows'))\
+            .join(Files.data)\
+            .group_by(Files.fileid)\
+            .having(Files.fileid == fileid)\
+            .first()
+    except HTTPException as ex:
+        Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                    f"time: <{calc_time(start_time)} ms>")
+        raise
 
-    # Соединение таблиц и получение информации
-    fileinf = db.session.query(Files, func.count(Data.fileid).label('count_rows'))\
-        .join(Files.data)\
-        .group_by(Files.fileid)\
-        .having(Files.fileid == fileid)\
-        .first()
+    Logger.info(f"Response: Query successed. query_id: <{query_id}>; "
+                f"time: <{calc_time(start_time)} ms>")
 
     return jsonify(
         fileid=fileid,
@@ -124,12 +135,6 @@ def file_info(fileid, start_time, query_id):
         last_download=fileinf.last_download,
         data_count=fileinf.count_rows
     ), 200
-    '''
-
-    Logger.info(f"Response: Query successed. query_id: <{query_id}>; "
-                f"time: <{calc_time(start_time)} ms>")
-
-    return "Response", 200
 
 
 # Удаление файла
@@ -144,12 +149,15 @@ def delete_file(fileid, start_time, query_id):
 
     # Удаление из бд
     with transaction():
-        '''
-        Данный блок находится в стадии доработки
-        ----------------------------------------
-        Data.query.filter_by(fileid=fileid).delete()
-        '''
-        Files.query.filter_by(fileid=fileid).delete()
+        try:
+            Data.query.filter_by(fileid=fileid).delete()
+            Files.query.filter_by(fileid=fileid).delete()
+        except HTTPException as ex:
+            Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                        f"time: <{calc_time(start_time)} ms>")
+            raise
+
+    db.session.commit()
 
     Logger.info(f"Response: Query successed. query_id: <{query_id}>; "
                 f"time: <{calc_time(start_time)} ms>")

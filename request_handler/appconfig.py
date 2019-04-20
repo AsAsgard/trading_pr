@@ -24,11 +24,6 @@ LOGGING = {
     },
 
     'handlers': {  # Обработчикаи сообщений
-        'file_handler_d': {
-            'class': 'logging.FileHandler',
-            'filename': '/tmp/trading_d.log',
-            'formatter': 'main',
-        },
         'file_handler': {
             'class': 'logging.FileHandler',
             'filename': '/tmp/trading.log',
@@ -46,7 +41,7 @@ LOGGING = {
             'level': 'INFO',
         },
         'devel_logger': {
-            'handlers': ['file_handler_d', 'streamlogger'],
+            'handlers': ['file_handler', 'streamlogger'],
             'level': 'DEBUG',
         },
     },
