@@ -9,6 +9,8 @@ from app.schemas.data_schema import DataSchema
 
 def uploadRow(values: dict, data_schema: DataSchema):
     DataRow = data_schema.load(values, session=db.session).data
+    print(f"Values: {values}")
+    print(f"DataRow: {DataRow}")
     if not isinstance(DataRow, Data):
         abort(400)
     db.query.add(DataRow)
