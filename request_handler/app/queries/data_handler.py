@@ -12,7 +12,7 @@ from app.logger import Logger
 from app.auxiliary.transaction import transaction
 from app.db_entities.files_view import Files
 from app.db_entities.data_view import Data
-from app.auxiliary.file_handlers.handler import handleFile
+from app.auxiliary.file_handlers.file_handler import handleFile
 from werkzeug.exceptions import HTTPException
 
 data_handler = Blueprint('data_handler', __name__, url_prefix="/data")
@@ -53,8 +53,9 @@ def upload_file(start_time, query_id):
     with transaction():
         try:
             file = Files(filename=request.files['file'].filename)
-            db.session.add(file)
-            #handleFile(file.fileid, request.files['file'])
+            with transaction():
+                db.session.add(file)
+            handleFile(file.fileid, request.files['file'])
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
                         f"time: <{calc_time(start_time)} ms>")
@@ -89,7 +90,7 @@ def change_file(fileid, start_time, query_id):
         try:
             Data.query.filter_by(fileid=fileid).delete()
             Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
-            #handleFile(fileid, request.files['file'])
+            handleFile(fileid, request.files['file'])
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
                         f"time: <{calc_time(start_time)} ms>")
