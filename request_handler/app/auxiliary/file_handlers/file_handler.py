@@ -39,6 +39,8 @@ def handleFile(fileid: int, file: FileStorage):
             df = read_csv(str, sep='[;,|]', engine="python", names=title)
         except errors.ParserError:
             abort(400)
+        if df.empty:
+            break
         values = parseRow(df, data_keys)
         values['fileid'] = fileid
         uploadRow(values, data_schema)
