@@ -131,9 +131,9 @@ def file_info(fileid, start_time, query_id):
 
     return jsonify(
         fileid=fileid,
-        filename=fileinf.filename,
-        first_download=fileinf.first_download,
-        last_download=fileinf.last_download,
+        filename=fileinf[0].filename,
+        first_download=fileinf[0].first_download,
+        last_download=fileinf[0].last_download,
         data_count=fileinf.count_rows
     ), 200
 
