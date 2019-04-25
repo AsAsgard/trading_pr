@@ -1,0 +1,12 @@
+aiohttp==3.5.4
+Flask==1.0.2
+jupyter==1.0.0
+ipykernel==5.1.0
+requests==2.21.0
+Flask-Script==2.0.6
+Flask-SQLAlchemy==2.3.2
+Flask-Migrate==2.4.0
+Marshmallow_SQLAlchemy==0.16.2
+SQLAlchemy-Utils==0.33.11
+Criptography==2.6.1
+Pandas==0.24.2
