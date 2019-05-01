@@ -18,6 +18,4 @@ def uploadRow(values: dict, data_schema: DataSchema, upload_lock):
     if not isinstance(DataRow, Data):
         abort(400)
     with upload_lock:
-        import os
-        print(f"{os.getpid()}: {DataRow}")
         db.session.add(DataRow)

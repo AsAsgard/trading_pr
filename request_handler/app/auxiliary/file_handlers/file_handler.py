@@ -13,6 +13,7 @@ from pandas import read_csv, errors
 from io import StringIO
 from ctypes import c_bool
 from appconfig import NUM_PROCESSES
+from app.database import db
 
 
 def parseRowsSingleProcess(file_ended, data_parsed, df_list, to_upload, fileid):
@@ -47,6 +48,8 @@ def uploadDataSingleProcess(data_parsed, to_upload, upload_lock, values_lock):
     while not data_parsed.value:
         uploadFromList()
     uploadFromList()
+    with values_lock:
+        db.session.flush()
 
 
 @transactional
@@ -68,8 +71,6 @@ def handleFile(fileid: int, file: FileStorage):
 
     # НЕОБХОДИМО ОТПРОФИЛИРОВАТЬ И ОПТИМИЗИРОВАТЬ!-------------
     # Считываем данные
-    import time
-    preparation = time.perf_counter()
     file_ended = Manager().Value(c_bool, False)
     data_parsed = Manager().Value(c_bool, False)
     df_list = Manager().list()
@@ -90,9 +91,8 @@ def handleFile(fileid: int, file: FileStorage):
                                                                  values_lock))
         uploaders.append(uploader)
         uploader.start()
-    preparation = (time.perf_counter() - preparation) * 1000
-    print(f"preparation: {preparation}")
 
+    import time
     reading = time.perf_counter()
     str = StringIO(file.stream.readline().decode("utf-8"))
     while str:
@@ -112,4 +112,3 @@ def handleFile(fileid: int, file: FileStorage):
     row_parse_process.join()
     for uploader in uploaders:
         uploader.join()
-    #------------------------------------------------------------
