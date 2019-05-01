@@ -3,7 +3,7 @@
 
 import time
 from functools import wraps
-from threading import Lock
+from multiprocessing import Lock
 from flask import Blueprint
 from flask import request, abort, jsonify
 from sqlalchemy import func

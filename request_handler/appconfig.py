@@ -74,3 +74,5 @@ class DevelopmentConfig(Config):
 
 # Текущая конфигурация
 currentConfig = DevelopmentConfig
+
+NUM_PROCESSES = 4
