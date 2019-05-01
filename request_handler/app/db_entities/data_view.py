@@ -25,4 +25,4 @@ class Data(db.Model):
     updated = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, server_default=text('now()'))
 
     def __repr__(self):
-        return f'{type(self).__name__} <{self.fileid}>=<{self.nodeid}>'
+        return f'{type(self).__name__} <{self.fileid}>: <{self.ticker}>-<self.date>-<self.time>'
