@@ -10,12 +10,11 @@ class Data(db.Model):
     __tablename__ = "Data"
     __table_args__ = {'extend_existing': True}
 
-    nodeid = db.Column(db.Integer, primary_key=True)
     fileid = db.Column(db.Integer, db.ForeignKey('Files.fileid'))
-    ticker = db.Column(db.String(80), nullable=False)
-    per = db.Column(db.Integer(), nullable=False)
-    date = db.Column(db.Date, nullable=False)
-    time = db.Column(db.Time, nullable=False)
+    ticker = db.Column(db.String(80), nullable=False, primary_key=True)
+    per = db.Column(db.Integer())
+    date = db.Column(db.Date, nullable=False, primary_key=True)
+    time = db.Column(db.Time, nullable=False, primary_key=True)
     open = db.Column(db.Float)
     high = db.Column(db.Float)
     low = db.Column(db.Float)

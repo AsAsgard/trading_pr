@@ -104,6 +104,40 @@ def change_file(fileid, start_time, query_id):
     return '', 204
 
 
+# Добавление в файл информации
+@data_handler.route('/<fileid>', methods=['PATCH'])
+@initialProcessing
+def update_file(fileid, start_time, query_id):
+    if not Files.query.filter_by(fileid=fileid).all():
+        code = 404
+        Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
+                    f"time: <{calc_time(start_time)} ms>")
+        abort(code)
+
+    if 'file' not in request.files or not request.files['file'].filename:
+        code = 400
+        Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
+                    f"time: <{calc_time(start_time)} ms>")
+        abort(code)
+
+    # Изменение в бд
+    with transaction():
+        try:
+            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+            handleFile(fileid, request.files['file'])
+        except HTTPException as ex:
+            Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                        f"time: <{calc_time(start_time)} ms>")
+            raise
+
+    db.session.commit()
+
+    Logger.info(f"Response: Query successed. query_id: <{query_id}>; "
+                f"time: <{calc_time(start_time)} ms>")
+
+    return '', 204
+
+
 # Получение информации о загруженном файле пользователя
 @data_handler.route('/<fileid>', methods=['GET'])
 @initialProcessing
