@@ -29,6 +29,7 @@ def handleFile(fileid: int, file: FileStorage):
     index, title = next(df.iterrows())
     title = title.tolist()
 
+    # НЕОБХОДИМО ОТПРОФИЛИРОВАТЬ И ОПТИМИЗИРОВАТЬ!-------------
     # Считываем данные
     values = None
     data_schema = DataSchema()
@@ -45,5 +46,6 @@ def handleFile(fileid: int, file: FileStorage):
         values['fileid'] = fileid
         uploadRow(values, data_schema)
         str = StringIO(file.stream.readline().decode("utf-8"))
+    #------------------------------------------------------------
     if not values:
         abort(400)
