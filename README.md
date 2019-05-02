@@ -1,4 +1,4 @@
-# Тестер трейдинговых стратегий [![Build Status](https://travis-ci.com/AsAsgard/trading_pr.svg?branch=production)](https://travis-ci.com/AsAsgard/trading_pr) [![Coveralls](https://img.shields.io/coveralls/AsAsgard/trading_pr/master.png)](https://coveralls.io/github/AsAsgard/trading_pr)
+# Тестер трейдинговых стратегий [![Build Status](https://travis-ci.com/AsAsgard/trading_pr.svg?branch=production)](https://travis-ci.com/AsAsgard/trading_pr) [![Coveralls](https://coveralls.io/repos/github/AsAsgard/trading_pr/badge.svg?branch=production)](https://coveralls.io/github/AsAsgard/trading_pr?branch=production)
 Данное ПО позволяет предсказать степень успешности трейдинговой стратегии в современных реалиях.
 
 ## Описание
