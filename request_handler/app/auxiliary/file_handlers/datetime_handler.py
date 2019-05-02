@@ -20,7 +20,7 @@ def parseStrDateTime(val):
             val[DateTime_fields.get('time')] = parse(" ".join(("19700101", str(val[DateTime_fields.get('time')])))).time()
         if DateTime_fields.get('datetime') in val.keys():
             val[DateTime_fields.get('datetime')] = datetime.combine(val[DateTime_fields.get('date')],
-                                                                       val[DateTime_fields.get('time')])
+                                                                    val[DateTime_fields.get('time')])
     except ValueError:
         abort(400)
 
