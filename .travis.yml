@@ -8,6 +8,6 @@ install:
 # command to run tests
 script:
   - py.test --pep8
-  - pytest --cov=request_handler request_handler/tests
+  - pytest --cov=request_handler tests
 after_success:
   - coveralls
