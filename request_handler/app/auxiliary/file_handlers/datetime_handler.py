@@ -12,23 +12,28 @@ DateTime_fields = {
 }
 
 
-def parseStrDateTime(val):
+def parseStrDateTime(df):
     try:
-        if DateTime_fields.get('date') in val.keys():
-            val[DateTime_fields.get('date')] = parse(str(val[DateTime_fields.get('date')])).date()
-        if DateTime_fields.get('time') in val.keys():
-            val[DateTime_fields.get('time')] = parse(" ".join(("19700101", str(val[DateTime_fields.get('time')])))).time()
-        if DateTime_fields.get('datetime') in val.keys():
-            val[DateTime_fields.get('datetime')] = datetime.combine(val[DateTime_fields.get('date')],
-                                                                    val[DateTime_fields.get('time')])
+        if DateTime_fields.get('date') in df.keys():
+            df[DateTime_fields.get('date')] = df[DateTime_fields.get('date')].map(
+                lambda daterow: parse(str(daterow)).date()
+            )
+        if DateTime_fields.get('time') in df.keys():
+            df[DateTime_fields.get('time')] = df[DateTime_fields.get('time')].map(
+                lambda timerow: parse(" ".join(("19700101", str(timerow)))).time()
+            )
+        if DateTime_fields.get('datetime') in df.keys():
+            df[DateTime_fields.get('datetime')] = df[DateTime_fields.get('time')].map(
+                lambda datetimerow: datetime.combine(df[DateTime_fields.get('date')], df[DateTime_fields.get('time')])
+            )
     except ValueError:
         abort(400)
 
 
-def datetimeToFormatStr(val):
-    if DateTime_fields.get('date') in val.keys() and isinstance(val[DateTime_fields.get('date')], date):
-        val[DateTime_fields.get('date')] = val[DateTime_fields.get('date')].strftime("%Y-%m-%d")
-    if DateTime_fields.get('time') in val.keys() and isinstance(val[DateTime_fields.get('time')], time):
-        val[DateTime_fields.get('time')] = val[DateTime_fields.get('time')].strftime("%H:%M:%S")
-    if DateTime_fields.get('datetime') in val.keys() and isinstance(val[DateTime_fields.get('datetime')], datetime):
-        val[DateTime_fields.get('datetime')] = val[DateTime_fields.get('datetime')].strftime("%Y-%m-%d %H:%M:%S")
+def datetimeToFormatStr(df):
+    if DateTime_fields.get('date') in df.keys() and isinstance(df[DateTime_fields.get('date')], date):
+        df[DateTime_fields.get('date')] = df[DateTime_fields.get('date')].strftime("%Y-%m-%d")
+    if DateTime_fields.get('time') in df.keys() and isinstance(df[DateTime_fields.get('time')], time):
+        df[DateTime_fields.get('time')] = df[DateTime_fields.get('time')].strftime("%H:%M:%S")
+    if DateTime_fields.get('datetime') in df.keys() and isinstance(df[DateTime_fields.get('datetime')], datetime):
+        df[DateTime_fields.get('datetime')] = df[DateTime_fields.get('datetime')].strftime("%Y-%m-%d %H:%M:%S")

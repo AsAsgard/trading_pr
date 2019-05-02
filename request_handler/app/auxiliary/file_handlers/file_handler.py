@@ -7,10 +7,12 @@ from app.schemas.data_schema import DataSchema
 from app.auxiliary.file_handlers.keys_normalizer import normalize_keys
 from app.auxiliary.file_handlers.parser import parseRow
 from app.auxiliary.file_handlers.uploader import uploadRow
+from app.auxiliary.file_handlers.datetime_handler import parseStrDateTime
 from flask import abort
 from werkzeug.datastructures import FileStorage
-from pandas import read_csv, read_table, errors
+from pandas import read_csv, errors
 from io import StringIO
+from app.database import db
 
 
 @transactional
@@ -40,5 +42,7 @@ def handleFile(fileid: int, file: FileStorage):
         abort(400)
     if df.empty:
         abort(400)
+    parseStrDateTime(df)
+    df.to_sql('Data', con=db.engine, if_exists='append', index='false', method='multi')
     print(df)
     # ---------------------------------------------------------
