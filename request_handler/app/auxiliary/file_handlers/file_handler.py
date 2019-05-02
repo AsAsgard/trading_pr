@@ -46,6 +46,6 @@ def handleFile(fileid: int, file: FileStorage):
         values['fileid'] = fileid
         uploadRow(values, data_schema)
         str = StringIO(file.stream.readline().decode("utf-8"))
-    #------------------------------------------------------------
+    # ---------------------------------------------------------
     if not values:
         abort(400)
