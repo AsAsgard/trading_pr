@@ -8,6 +8,6 @@ install:
 # command to run tests
 script:
   - py.test --pep8
+  - pytest --cov=requeest_handler test/request_handler
 after_success:
-  - cat ./coverage/lconv.info | ./node_modules/codecov.io/bin/codecov.io.js
-  - cat ./coverage/lconv.info | ./node_modules/coveralls/bin/coveralls.js
+  - coveralls
