@@ -1,4 +1,4 @@
-# Тестер трейдинговых стратегий
+# Тестер трейдинговых стратегий [![Build Status](https://travis-ci.com/AsAsgard/trading_pr.svg?branch=production)](https://travis-ci.com/AsAsgard/trading_pr)
 Данное ПО позволяет предсказать степень успешности трейдинговой стратегии в современных реалиях.
 
 ## Описание
