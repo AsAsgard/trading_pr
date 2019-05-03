@@ -6,7 +6,7 @@ from app.db_entities.data_view import Data
 from app.schemas.data_schema import DataSchema
 from app.auxiliary.file_handlers.keys_normalizer import normalize_keys
 from app.auxiliary.file_handlers.parser import parseRow
-from app.auxiliary.file_handlers.uploader import uploadRow
+from app.auxiliary.file_handlers.uploader import uploadRow, uploadToDB
 from app.auxiliary.file_handlers.datetime_handler import parseStrDateTime
 from flask import abort
 from werkzeug.datastructures import FileStorage
@@ -33,7 +33,6 @@ def handleFile(fileid: int, file: FileStorage):
     titles = titles.tolist()
     titles = normalize_keys(titles)
 
-    # НЕОБХОДИМО ОТПРОФИЛИРОВАТЬ И ОПТИМИЗИРОВАТЬ!-------------
     # Считываем данные
     filedata = file.stream.read().decode('utf-8').replace(';',',').replace('|',',')
     try:
@@ -42,7 +41,5 @@ def handleFile(fileid: int, file: FileStorage):
         abort(400)
     if df.empty:
         abort(400)
-    parseStrDateTime(df)
-    df.to_sql('Data', con=db.engine, if_exists='append', index='false', method='multi')
-    print(df)
-    # ---------------------------------------------------------
+    df['fileid'] = fileid
+    uploadToDB(df)

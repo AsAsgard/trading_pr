@@ -49,7 +49,6 @@ def upload_file(start_time, query_id):
                     f"time: <{calc_time(start_time)} ms>")
         abort(code)
 
-    # Добавление в бд
     with transaction():
         try:
             file = Files(filename=request.files['file'].filename)
@@ -58,7 +57,7 @@ def upload_file(start_time, query_id):
             handleFile(file.fileid, request.files['file'])
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
-                        f"time: <{calc_time(start_time)} ms>")
+                f"time: <{calc_time(start_time)} ms>")
             raise
 
     db.session.commit()
