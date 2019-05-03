@@ -32,7 +32,17 @@ def uploadToDB(df):
                     except AttributeError:
                         pass
         inserterStatemant = inserterStatemant.on_duplicate_key_update(
-            norm_data_keys
+            fileid=inserterStatemant.inserted.fileid,
+            ticker=inserterStatemant.inserted.ticker,
+            per=inserterStatemant.inserted.per,
+            date=inserterStatemant.inserted.date,
+            time=inserterStatemant.inserted.time,
+            open=inserterStatemant.inserted.open,
+            close=inserterStatemant.inserted.close,
+            high=inserterStatemant.inserted.high,
+            low=inserterStatemant.inserted.low,
+            vol=inserterStatemant.inserted.vol,
+            updated=inserterStatemant.inserted.updated,
         )
         db.session.execute(inserterStatemant)
 

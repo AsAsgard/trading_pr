@@ -11,7 +11,7 @@ DateTime_fields = {
     'datetime': None,
 }
 
-
+#deprecated
 def parseStrDateTime(df):
     try:
         if DateTime_fields.get('date') in df.keys():

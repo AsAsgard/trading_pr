@@ -6,11 +6,11 @@ from app.auxiliary.file_handlers.datetime_handler import datetimeToFormatStr, pa
 
 
 # deprecated
-def parseRow(df, data_keys: list) -> dict:
+def parseRow(df) -> dict:
     values = df.to_dict(orient='list')
     for key, value_list in values.items():
         values[key] = value_list[0]
-    normalize_keys(values, data_keys)
+    normalize_keys(values)
 
     # Обработка даты и времени
     parseStrDateTime(values)

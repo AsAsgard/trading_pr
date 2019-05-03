@@ -2,17 +2,12 @@
 # coding: utf-8
 
 from app.auxiliary.transaction import transactional
-from app.db_entities.data_view import Data
-from app.schemas.data_schema import DataSchema
 from app.auxiliary.file_handlers.keys_normalizer import normalize_keys
-from app.auxiliary.file_handlers.parser import parseRow
-from app.auxiliary.file_handlers.uploader import uploadRow, uploadToDB
-from app.auxiliary.file_handlers.datetime_handler import parseStrDateTime
+from app.auxiliary.file_handlers.uploader import uploadToDB
 from flask import abort
 from werkzeug.datastructures import FileStorage
 from pandas import read_csv, errors
 from io import StringIO
-from app.database import db
 
 
 @transactional
