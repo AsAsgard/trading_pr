@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from flask import abort
 from app.database import db
 from app.db_entities.data_view import Data
 from app.schemas.data_schema import DataSchema
 from sqlalchemy.dialects.mysql import insert
 from appconfig import chunkSize
+from sqlalchemy.exc import InternalError, DataError
 
 
 def uploadToDB(df):
@@ -20,7 +22,13 @@ def uploadToDB(df):
         inserterStatemant = inserterStatemant.on_duplicate_key_update(
             norm_data_keys
         )
-        db.session.execute(inserterStatemant)
+        try:
+            db.session.execute(inserterStatemant)
+        except (InternalError, DataError):
+            abort(400, f"Data is not valid. "
+                       f"Problem finded in range ({last_boarder}, {min(last_boarder + chunkSize, len(dicts))}). "
+                       f"Try to check matching of values with its column names. "
+                       f"If you haven't find the problem, try to check the data in specified range.")
 
     dicts = df.to_dict('records')
     data_schema = DataSchema()

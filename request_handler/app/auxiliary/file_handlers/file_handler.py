@@ -14,16 +14,16 @@ from io import StringIO
 def handleFile(fileid: int, file: FileStorage):
     str = StringIO(file.stream.readline().decode("utf-8"))
     if not str:
-        abort(400)
+        abort(400, "Cannot read data from file. Bad file data.")
 
     df = None
     try:
         df = read_csv(str, sep='[;,|]', engine="python", header=None)
     except errors.ParserError:
-        abort(400)
+        abort(400, "Bad file format.")
 
     if df.empty:
-        abort(400)
+        abort(400, "No data in file.")
     index, titles = next(df.iterrows())
     titles = titles.tolist()
     titles = normalize_keys(titles)
@@ -33,8 +33,8 @@ def handleFile(fileid: int, file: FileStorage):
     try:
         df = read_csv(StringIO(filedata), sep=',', names=titles)
     except errors.ParserError:
-        abort(400)
+        abort(400, "Error during parsing. Check the correctness of the data in file.")
     if df.empty:
-        abort(400)
+        abort(400, "No data to read.")
     df['fileid'] = fileid
     uploadToDB(df)

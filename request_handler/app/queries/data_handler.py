@@ -47,7 +47,7 @@ def upload_file(start_time, query_id):
         code = 400
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
                     f"time: <{calc_time(start_time)} ms>")
-        abort(code)
+        abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
 
     with transaction():
         try:
@@ -76,13 +76,13 @@ def change_file(fileid, start_time, query_id):
         code = 404
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
                     f"time: <{calc_time(start_time)} ms>")
-        abort(code)
+        abort(code, "No file with such fileID in database.")
 
     if 'file' not in request.files or not request.files['file'].filename:
         code = 400
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
                     f"time: <{calc_time(start_time)} ms>")
-        abort(code)
+        abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
 
     # Изменение в бд
     with transaction():
@@ -111,13 +111,13 @@ def update_file(fileid, start_time, query_id):
         code = 404
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
                     f"time: <{calc_time(start_time)} ms>")
-        abort(code)
+        abort(code, "No file with such fileID in database.")
 
     if 'file' not in request.files or not request.files['file'].filename:
         code = 400
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
                     f"time: <{calc_time(start_time)} ms>")
-        abort(code)
+        abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
 
     # Изменение в бд
     with transaction():
@@ -145,7 +145,7 @@ def file_info(fileid, start_time, query_id):
         code = 404
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
                     f"time: <{calc_time(start_time)} ms>")
-        abort(code)
+        abort(code, "No file with such fileID in database.")
 
     try:
         # Соединение таблиц и получение информации
@@ -179,7 +179,7 @@ def delete_file(fileid, start_time, query_id):
         code = 404
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
                     f"time: <{calc_time(start_time)} ms>")
-        abort(code)
+        abort(code, "No file with such fileID in database.")
 
     # Удаление из бд
     with transaction():
