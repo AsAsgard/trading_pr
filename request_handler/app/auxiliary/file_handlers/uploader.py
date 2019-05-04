@@ -14,7 +14,7 @@ def uploadToDB(df):
 
     def insertChunk(inserterStatemant):
         for key in data_keys.keys():
-            if key in dicts[0].keys() or key=='updated':
+            if key in dicts[0].keys() or key == 'updated':
                 try:
                     norm_data_keys[key] = getattr(inserterStatemant.inserted, key)
                 except AttributeError:
