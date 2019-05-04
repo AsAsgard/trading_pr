@@ -74,3 +74,6 @@ class DevelopmentConfig(Config):
 
 # Текущая конфигурация
 currentConfig = DevelopmentConfig
+
+# Размер буффера данных, загружаемых в базу
+chunkSize = 30000
