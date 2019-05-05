@@ -7,7 +7,6 @@ from app.database import db
 from appconfig import currentConfig
 
 
-
 @pytest.yield_fixture(scope="session")
 def app():
     app = create_app()

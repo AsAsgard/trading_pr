@@ -6,6 +6,7 @@ from flask import url_for
 from app.db_entities.files_view import Files
 from app.db_entities.data_view import Data
 
+
 class TestServer:
     def test_server(self, client, db_session):
         assert client.get(url_for('data_handler.file_info', fileid=1)).status_code == 404
