@@ -72,8 +72,30 @@ class DevelopmentConfig(Config):
     DEBUG = True
     LOGGER_NAME = 'devel_logger'
 
+
+# Конфигурация тестирования
+class TestConfig(Config):
+    DEBUG = True
+    TESTING = True
+    WTF_CSRF_ENABLED = False
+    LOGGER_NAME = 'devel_logger'
+    test_db_name = "test_trading_db"
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_CONFIG['username']}:{DB_CONFIG['password']}" \
+                              f"@{DB_CONFIG['host']}/{test_db_name}?charset=utf8"
+
 # Текущая конфигурация
-currentConfig = DevelopmentConfig
+# --------------------------------------------------
+_currentConfig = DevelopmentConfig
+
+
+def getConfig():
+    return _currentConfig
+
+
+def setConfig(config):
+    global _currentConfig
+    _currentConfig = config
+# --------------------------------------------------
 
 # Размер буффера данных, загружаемых в базу
 chunkSize = 30000
