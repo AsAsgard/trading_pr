@@ -3,18 +3,21 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
-from flask import Flask
 from appconfig import getConfig
 from app.database import db
+from app import create_app
 
-engine = create_engine(getConfig().SQLALCHEMY_DATABASE_URI)
-if not database_exists(engine.url):
-    create_database(engine.url)
 
-app = Flask(__name__)
-app.config.from_object(getConfig())
+def migrate(app):
+    engine = create_engine(getConfig().SQLALCHEMY_DATABASE_URI)
+    if not database_exists(engine.url):
+        create_database(engine.url)
+    assert database_exists(engine.url)
 
-db.init_app(app)
+    with app.test_request_context():
+        db.create_all()
 
-with app.test_request_context():
-    db.create_all()
+
+if __name__ == "__main__":
+    app = create_app()
+    migrate(app)
