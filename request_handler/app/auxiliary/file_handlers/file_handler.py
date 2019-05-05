@@ -31,7 +31,7 @@ def handleFile(fileid: int, file: FileStorage):
     # Считываем данные
     filedata = file.stream.read().decode('utf-8').replace(';', ',')\
                                                  .replace('|', ',')\
-                                                 .replace('\t' ',')
+                                                 .replace('\t', ',')
     try:
         df = read_csv(StringIO(filedata), sep=',', names=titles)
     except errors.ParserError:
