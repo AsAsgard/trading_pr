@@ -29,7 +29,9 @@ def handleFile(fileid: int, file: FileStorage):
     titles = normalize_keys(titles)
 
     # Считываем данные
-    filedata = file.stream.read().decode('utf-8').replace(';', ',').replace('|', ',')
+    filedata = file.stream.read().decode('utf-8').replace(';', ',')\
+                                                 .replace('|', ',')\
+                                                 .replace('\t' ',')
     try:
         df = read_csv(StringIO(filedata), sep=',', names=titles)
     except errors.ParserError:
