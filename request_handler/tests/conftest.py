@@ -19,6 +19,7 @@ def app():
 @pytest.yield_fixture(scope="session")
 def _db(app):
     dsn = getConfig().SQLALCHEMY_DATABASE_URI
+    assert not database_exists(dsn)
     migrate(app)
     yield db
     db.session.remove()
