@@ -8,7 +8,6 @@ from app.database import db
 from migrate import migrate
 from appconfig import setConfig, getConfig, TestConfig
 
-test_counter = 0
 
 @pytest.yield_fixture(scope="session")
 def app():
@@ -18,17 +17,16 @@ def app():
 
 
 @pytest.yield_fixture(scope="session")
-def _db(app):
+def db_cr(app):
     dsn = getConfig().SQLALCHEMY_DATABASE_URI
     assert not database_exists(dsn)
     migrate(app)
     yield db
-    db.session.remove()
     drop_database(dsn)
     assert not database_exists(dsn)
 
-@pytest.fixture()
-def test_num():
-    global test_counter
-    test_counter += 1
-    return test_counter
+
+@pytest.yield_fixture()
+def _db(db_cr):
+    yield db_cr
+    db_cr.session.remove()

@@ -163,7 +163,7 @@ def file_info(fileid, start_time, query_id):
                 f"time: <{calc_time(start_time)} ms>")
 
     return jsonify(
-        fileid=fileid,
+        fileid=int(fileid),
         filename=fileinf[0].filename,
         first_download=fileinf[0].first_download,
         last_download=fileinf[0].last_download,
@@ -184,8 +184,8 @@ def delete_file(fileid, start_time, query_id):
     # Удаление из бд
     with transaction():
         try:
-            Data.query.filter_by(fileid=fileid).delete()
-            Files.query.filter_by(fileid=fileid).delete()
+            db.session.query(Data).filter_by(fileid=fileid).delete(synchronize_session="fetch")
+            db.session.query(Files).filter_by(fileid=fileid).delete(synchronize_session="fetch")
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
                         f"time: <{calc_time(start_time)} ms>")
