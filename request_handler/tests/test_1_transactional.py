@@ -10,6 +10,7 @@ from tests.t_data import testFilenames, testData
 
 
 class TestTransactional:
+
     def test_creation(self, db_session):
         try:
             assert not db_session.query(Files).all()

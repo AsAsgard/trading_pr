@@ -43,6 +43,11 @@ def calc_time(start_time):
 @data_handler.route('/', methods=['POST'])
 @initialProcessing
 def upload_file(start_time, query_id):
+    print(f"file not in files: {'file' not in request.files}")
+    if 'file' in request.files:
+        print(f"not request.files['file'].filename: {not request.files['file'].filename}")
+    print(request.files)
+
     if 'file' not in request.files or not request.files['file'].filename:
         code = 400
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
