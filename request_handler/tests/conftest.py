@@ -7,20 +7,28 @@ from app import create_app
 from app.database import db
 from migrate import migrate
 from appconfig import setConfig, getConfig, TestConfig
+import appconfig
 
 
 @pytest.yield_fixture(scope="session")
 def app():
     setConfig(TestConfig)
+    appconfig.chunkSize = 1000
     app = create_app()
     yield app
 
 
 @pytest.yield_fixture(scope="session")
-def _db(app):
+def db_cr(app):
     dsn = getConfig().SQLALCHEMY_DATABASE_URI
+    assert not database_exists(dsn)
     migrate(app)
     yield db
-    db.session.remove()
     drop_database(dsn)
     assert not database_exists(dsn)
+
+
+@pytest.yield_fixture()
+def _db(db_cr):
+    yield db_cr
+    db_cr.session.remove()
