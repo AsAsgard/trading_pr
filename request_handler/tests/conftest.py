@@ -7,11 +7,13 @@ from app import create_app
 from app.database import db
 from migrate import migrate
 from appconfig import setConfig, getConfig, TestConfig
+import appconfig
 
 
 @pytest.yield_fixture(scope="session")
 def app():
     setConfig(TestConfig)
+    appconfig.chunkSize = 1000
     app = create_app()
     yield app
 

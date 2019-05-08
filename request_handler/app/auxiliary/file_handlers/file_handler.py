@@ -8,6 +8,7 @@ from flask import abort
 from werkzeug.datastructures import FileStorage
 from pandas import read_csv, errors
 from io import StringIO
+from app.database import db
 
 
 @transactional
