@@ -49,16 +49,21 @@ def upload_file(start_time, query_id):
                     f"time: <{calc_time(start_time)} ms>")
         abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
 
-    with transaction():
-        try:
-            file = Files(filename=request.files['file'].filename)
+    if not isinstance(request.files['file'].filename, str) or len(request.files['file'].filename) > 99:
+        abort(400, "Too long or bad filename.")
+
+    file = Files(filename=request.files['file'].filename)
+    try:
+        with transaction():
             with transaction():
                 db.session.add(file)
+            db.session.flush()
             handleFile(file.fileid, request.files['file'])
-        except HTTPException as ex:
-            Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
-                        f"time: <{calc_time(start_time)} ms>")
-            raise
+    except HTTPException as ex:
+        db.session.query(Files).filter_by(fileid=file.fileid).delete()
+        Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                    f"time: <{calc_time(start_time)} ms>")
+        raise
 
     db.session.commit()
 
@@ -84,16 +89,20 @@ def change_file(fileid, start_time, query_id):
                     f"time: <{calc_time(start_time)} ms>")
         abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
 
+    if not isinstance(request.files['file'].filename, str) or len(request.files['file'].filename) > 99:
+        abort(400, "Too long or bad filename.")
+
     # Изменение в бд
-    with transaction():
-        try:
-            Data.query.filter_by(fileid=fileid).delete()
-            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+    try:
+        with transaction():
+            db.session.query(Data).filter_by(fileid=fileid).delete()
             handleFile(fileid, request.files['file'])
-        except HTTPException as ex:
-            Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
-                        f"time: <{calc_time(start_time)} ms>")
-            raise
+            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+    except HTTPException as ex:
+        db.session.rollback()
+        Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                    f"time: <{calc_time(start_time)} ms>")
+        raise
 
     db.session.commit()
 
@@ -119,15 +128,19 @@ def update_file(fileid, start_time, query_id):
                     f"time: <{calc_time(start_time)} ms>")
         abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
 
+    if not isinstance(request.files['file'].filename, str) or len(request.files['file'].filename) > 99:
+        abort(400, "Too long or bad filename.")
+
     # Изменение в бд
-    with transaction():
-        try:
-            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+    try:
+        with transaction():
             handleFile(fileid, request.files['file'])
-        except HTTPException as ex:
-            Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
-                        f"time: <{calc_time(start_time)} ms>")
-            raise
+            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+    except HTTPException as ex:
+        db.session.rollback()
+        Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                    f"time: <{calc_time(start_time)} ms>")
+        raise
 
     db.session.commit()
 
@@ -163,7 +176,7 @@ def file_info(fileid, start_time, query_id):
                 f"time: <{calc_time(start_time)} ms>")
 
     return jsonify(
-        fileid=fileid,
+        fileid=int(fileid),
         filename=fileinf[0].filename,
         first_download=fileinf[0].first_download,
         last_download=fileinf[0].last_download,
@@ -182,14 +195,14 @@ def delete_file(fileid, start_time, query_id):
         abort(code, "No file with such fileID in database.")
 
     # Удаление из бд
-    with transaction():
-        try:
-            Data.query.filter_by(fileid=fileid).delete()
-            Files.query.filter_by(fileid=fileid).delete()
-        except HTTPException as ex:
-            Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
-                        f"time: <{calc_time(start_time)} ms>")
-            raise
+    try:
+        with transaction():
+            db.session.query(Data).filter_by(fileid=fileid).delete(synchronize_session="fetch")
+            db.session.query(Files).filter_by(fileid=fileid).delete(synchronize_session="fetch")
+    except HTTPException as ex:
+        Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
+                    f"time: <{calc_time(start_time)} ms>")
+        raise
 
     db.session.commit()
 

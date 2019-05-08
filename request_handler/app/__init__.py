@@ -15,7 +15,7 @@ def create_app():
     app = Flask(__name__)
     Logger.info('App created')
     Logger.info('Configurating config...')
-    app.config.from_object(appconfig.currentConfig)
+    app.config.from_object(appconfig.getConfig())
     Logger.info('Config configured')
 
     Logger.info('Initialize database...')
