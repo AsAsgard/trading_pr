@@ -38,3 +38,9 @@ testData = [
         'vol': 32223
     },
 ]
+
+
+def count_lines(filename, chunk_size=1<<13):
+    with open(filename) as file:
+        return sum(chunk.count('\n')
+                   for chunk in iter(lambda: file.read(chunk_size), ''))

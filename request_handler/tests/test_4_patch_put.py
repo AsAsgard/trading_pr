@@ -51,6 +51,12 @@ class TestPatchPut:
         assert db_session.query(Files).all() == [file]
         assert db_session.query(Data).all() == samples
 
-    @pytest.mark.parametrize('filepath', [pytest.param("request_handler/tests/csv/sber_170101_181235.csv")])
+    @pytest.mark.parametrize('filepath', [
+        pytest.param("request_handler/tests/csv/bad_data.csv"),
+        pytest.param("request_handler/tests/csv/only_title.csv"),
+        pytest.param("request_handler/tests/csv/no_date_in_data.csv"),
+        pytest.param("request_handler/tests/csv/no_data.csv"),
+        pytest.param("request_handler/tests/csv/image.jpg"),
+    ])
     def test_bad_body(self, client, db_session, filepath):
         pass

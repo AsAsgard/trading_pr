@@ -14,6 +14,7 @@ from app.db_entities.files_view import Files
 from app.db_entities.data_view import Data
 from app.auxiliary.file_handlers.file_handler import handleFile
 from werkzeug.exceptions import HTTPException
+from sqlalchemy.exc import DataError
 
 data_handler = Blueprint('data_handler', __name__, url_prefix="/data")
 query_counter = 0
@@ -43,11 +44,6 @@ def calc_time(start_time):
 @data_handler.route('/', methods=['POST'])
 @initialProcessing
 def upload_file(start_time, query_id):
-    print(f"file not in files: {'file' not in request.files}")
-    if 'file' in request.files:
-        print(f"not request.files['file'].filename: {not request.files['file'].filename}")
-    print(request.files)
-
     if 'file' not in request.files or not request.files['file'].filename:
         code = 400
         Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
@@ -58,11 +54,16 @@ def upload_file(start_time, query_id):
         try:
             file = Files(filename=request.files['file'].filename)
             with transaction():
-                db.session.add(file)
+                try:
+                    db.session.add(file)
+                except DataError:
+                    abort(400, "Too long or bad filename.")
+            db.session.flush()
             handleFile(file.fileid, request.files['file'])
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
                         f"time: <{calc_time(start_time)} ms>")
+            db.session.query(Files).filter_by(fileid=file.fileid).delete()
             raise
 
     db.session.commit()
@@ -92,8 +93,11 @@ def change_file(fileid, start_time, query_id):
     # Изменение в бд
     with transaction():
         try:
-            Data.query.filter_by(fileid=fileid).delete()
-            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+            Data.query.filter_by(fileid=fileid).delete(synchronize_session="fetch")
+            try:
+                Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+            except DataError:
+                abort(400, "Too long or bad filename.")
             handleFile(fileid, request.files['file'])
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
@@ -127,7 +131,10 @@ def update_file(fileid, start_time, query_id):
     # Изменение в бд
     with transaction():
         try:
-            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+            try:
+                Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+            except DataError:
+                abort(400, "Too long or bad filename.")
             handleFile(fileid, request.files['file'])
         except HTTPException as ex:
             Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{ex.code}>; "
