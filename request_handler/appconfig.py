@@ -2,12 +2,13 @@
 # coding: utf-8
 
 import logging.config
+import os
 
 
 # Конфигурация базы данных
 DB_CONFIG = {
     'username': 'root',
-    'password': 'trading_pass',
+    'password': os.environ.get('MYSQL_TRADING_PASS'),
     'host': '127.0.0.1',
     'dbname': 'trading_db',
 }
