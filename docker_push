@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-docker build -t asasgard/request_handler:latest ./request_handler
-docker push asasgard/request_handler:latest
+docker build -t $DOCKER_USERNAME/request_handler:latest ./request_handler
+docker push $DOCKER_USERNAME/request_handler:latest
