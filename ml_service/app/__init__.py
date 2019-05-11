@@ -20,10 +20,14 @@ def create_app():
     db.init_app(app)
     Logger.info('Database initialized')
 
-    import app.queries.upload_handler as upload_handler
+    import app.queries.preprocessors_handler as preprocessors_handler
+    import app.queries.resources_handler as resources_handler
+    import app.queries.models_handler as models_handler
     import app.queries.ml_handler as ml_handler
 
-    app.register_blueprint(upload_handler.upload_handler)
+    app.register_blueprint(preprocessors_handler.preprocessors_handler)
+    app.register_blueprint(resources_handler.resources_handler)
+    app.register_blueprint(models_handler.models_handler)
     app.register_blueprint(ml_handler.ml_handler)
 
     return app

@@ -4,14 +4,9 @@
 import time
 from functools import wraps
 from threading import Lock
-from flask import Blueprint
-from flask import request, abort, jsonify
-from sqlalchemy import func
-from app.database import db
+from flask import request
 from app.logger import Logger
-from werkzeug.exceptions import HTTPException
 
-upload_handler = Blueprint('upload_handler', __name__, url_prefix="/upload")
 query_counter = 0
 lock = Lock()
 
@@ -35,22 +30,11 @@ def calc_time(start_time):
     return (time.perf_counter() - start_time) * 1000
 
 
-# Загрузка препроцессора
-@upload_handler.route('/preprocessor', methods=['POST'])
-@initialProcessing
-def preprocessor(start_time, query_id):
-    pass
+def logFail(query_id, start_time, code):
+    Logger.info(f"Response: Query failed. query_id: <{query_id}>; err_code: <{code}>; "
+                f"time: <{calc_time(start_time)} ms>")
 
 
-# Загрузка модели
-@upload_handler.route('/model', methods=['POST'])
-@initialProcessing
-def model(start_time, query_id):
-    pass
-
-
-# Загрузка ресурса
-@upload_handler.route('/resource', methods=['POST'])
-@initialProcessing
-def resource(start_time, query_id):
-    pass
+def logSuccess(query_id, start_time):
+    Logger.info(f"Response: Query successed. query_id: <{query_id}>; "
+                f"time: <{calc_time(start_time)} ms>")

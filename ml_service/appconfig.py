@@ -59,6 +59,7 @@ class Config(object):
                               f"@{DB_CONFIG['host']}/{DB_CONFIG['dbname']}?charset=utf8"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LOGGER_NAME = 'devel_logger'
+    UPLOAD_FOLDER = './storage'
 
 
 # Конфигурация выпуска
@@ -81,6 +82,7 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
     LOGGER_NAME = 'devel_logger'
     test_db_name = "test_trading_db"
+    UPLOAD_FOLDER = '/tmp'
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_CONFIG['username']}:{DB_CONFIG['password']}" \
                               f"@{DB_CONFIG['host']}/{test_db_name}?charset=utf8"
 
