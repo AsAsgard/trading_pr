@@ -12,9 +12,9 @@ def create_app():
     Logger.info('Creating app...')
     app = Flask(__name__)
     Logger.info('App created')
-    Logger.info('Configurating config...')
+    Logger.info('Configure app...')
     app.config.from_object(appconfig.getConfig())
-    Logger.info('Config configured')
+    Logger.info('App configured')
 
     Logger.info('Initialize database...')
     db.init_app(app)

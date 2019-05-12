@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from manage import app
+from appconfig import upload_folder
 from flask import Blueprint
 from app.auxiliary import storage_functions
 
 preprocessors_handler = Blueprint('preprocessors_handler', __name__, url_prefix="/preprocessors")
 prep_parameters = {
-    'folder': app.config['UPLOAD_FOLDER'] + '/preprocessors/',
+    'folder': upload_folder + '/preprocessors/',
     'extension': '.py',
     'entity': 'preprocessor',
 }

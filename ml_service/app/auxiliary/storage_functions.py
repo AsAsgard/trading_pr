@@ -107,7 +107,7 @@ def storage_list(parameters, start_time, query_id):
     logSuccess(query_id, start_time)
 
     if not files:
-        return jsonify(["Empty set", ]), 200
+        return jsonify("Empty set"), 200
 
     return jsonify(files), 200
 
@@ -115,7 +115,7 @@ def storage_list(parameters, start_time, query_id):
 # Удаление компонента
 @initialProcessing
 def storage_delete(parameters, filename, start_time, query_id):
-    if not isinstance(request.files['file'].filename, str) or len(request.files['file'].filename) > 99:
+    if not isinstance(filename, str) or len(filename) > 99:
         code = 400
         logFail(query_id, start_time, code)
         abort(code, "Too long or bad filename.")

@@ -152,6 +152,36 @@ def file_info(fileid, start_time, query_id):
     ), 200
 
 
+# список файлов с количеством их записей
+@data_handler.route('/list', methods=['GET'])
+@initialProcessing
+def files_list(start_time, query_id):
+    if not Files.query.all():
+        logSuccess(query_id, start_time)
+        return jsonify("Empty set.")
+
+    try:
+        # Соединение таблиц и получение информации
+        fileinf = db.session.query(Files, func.count(Data.fileid).label('count_rows'))\
+            .join(Files.data)\
+            .group_by(Files.fileid)\
+            .all()
+    except HTTPException as ex:
+        logFail(query_id, start_time, ex.code)
+        raise
+
+    logSuccess(query_id, start_time)
+
+    return jsonify([
+        {
+            "fileid": fileinf[i][0].fileid,
+            "filename": fileinf[i][0].filename,
+            "count_rows": fileinf[i].count_rows,
+        }
+        for i in range(0, len(fileinf))
+    ]), 200
+
+
 # Удаление файла
 @data_handler.route('/<fileid>', methods=['DELETE'])
 @initialProcessing

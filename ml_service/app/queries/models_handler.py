@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from manage import app
+from appconfig import upload_folder
 from flask import Blueprint
 from app.auxiliary import storage_functions
 
 models_handler = Blueprint('models_handler', __name__, url_prefix="/models")
 model_parameters = {
-    'folder': app.config['UPLOAD_FOLDER'] + '/models/',
+    'folder': upload_folder + '/models/',
     'extension': '.py',
     'entity': 'model',
 }

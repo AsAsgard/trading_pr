@@ -3,10 +3,9 @@
 
 from flask_script import Manager
 from app.logger import Logger
-from app import create_app
+from fl_app import application
 
-app = create_app()
-manager = Manager(app)
+manager = Manager(application)
 
 
 if __name__ == "__main__":

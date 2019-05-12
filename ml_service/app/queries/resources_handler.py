@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from manage import app
+from appconfig import upload_folder
 from flask import Blueprint
 from app.auxiliary import storage_functions
 
 resources_handler = Blueprint('resources_handler', __name__, url_prefix="/resources")
 res_parameters = {
-    'folder': app.config['UPLOAD_FOLDER'] + '/resources/',
+    'folder': upload_folder + '/resources/',
     'extension': '.pkl',
     'entity': 'resource',
 }
