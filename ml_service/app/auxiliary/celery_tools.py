@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import os
 from flask_mail import Mail, Message
 from app.auxiliary.query_tools import calc_time
 from app.logger import Logger
 
 
 def sendEmail(email, msg_body):
-    from fl_app import application
+    from app.fl_app import application
     mail = Mail(application)
-    msg = Message('Response from Trading Project', recipients=[email])
-    msg.body = msg_body
     with application.app_context():
+        msg = Message('Response from Trading Project', recipients=[email])
+        msg.body = msg_body
         mail.send(msg)
 
 

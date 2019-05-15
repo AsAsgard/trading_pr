@@ -3,7 +3,7 @@
 
 from flask_script import Manager
 from app.logger import Logger
-from fl_app import application
+from app.fl_app import application
 
 manager = Manager(application)
 

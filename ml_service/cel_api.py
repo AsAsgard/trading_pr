@@ -2,7 +2,11 @@
 # coding: utf-8
 
 from celery import Celery
-from fl_app import application
+from appconfig import getConfig
+from app.logger import Logger
 
-celery_api = Celery('ml_service', broker=application.config.get('CELERY_BROKER_URL'))
-celery_api.conf.update(application.config)
+Logger.info('Configuring celery...')
+celery_api = Celery(broker=getConfig().CELERY_BROKER_URL)
+celery_api.config_from_object(getConfig())
+celery_api.autodiscover_tasks(['app.celery_tasks.run_ml_task'], force=True)
+Logger.info('Celery configured')

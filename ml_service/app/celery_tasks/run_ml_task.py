@@ -20,10 +20,10 @@ def ml_task_runner(self, prep, model, res_path, cursor, parameters):
     try:
         data = prep.preprocess(cursor)
     except (AttributeError, TypeError) as ex:
-        celeryLogFailAndEmail(self.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+        celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
         raise RuntimeError("Bad preprocessor file.")
     except Exception as ex:
-        celeryLogFailAndEmail(self.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+        celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
         raise RuntimeError("Exception in runtime of preprocessing.")
 
     self.update_state(state='PROGRESS',
@@ -33,10 +33,10 @@ def ml_task_runner(self, prep, model, res_path, cursor, parameters):
     try:
         model.load(res_path)
     except (AttributeError, TypeError) as ex:
-        celeryLogFailAndEmail(self.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+        celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
         raise RuntimeError("Bad model file.")
     except Exception as ex:
-        celeryLogFailAndEmail(self.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+        celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
         raise RuntimeError("Exception in runtime of loading data.")
 
     self.update_state(state='PROGRESS',
@@ -46,10 +46,10 @@ def ml_task_runner(self, prep, model, res_path, cursor, parameters):
     try:
         prediction = model.predict(data)
     except (AttributeError, TypeError) as ex:
-        celeryLogFailAndEmail(self.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+        celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
         raise RuntimeError("Bad model file.")
     except Exception as ex:
-        celeryLogFailAndEmail(self.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+        celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
         raise RuntimeError("Exception in runtime of predicting.")
 
     self.update_state(state='PROGRESS',
@@ -67,7 +67,7 @@ def ml_task_runner(self, prep, model, res_path, cursor, parameters):
             full_result.result = prediction
             db.session.add(full_result)
     except Exception as ex:
-        celeryLogFailAndEmail(self.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+        celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
         raise RuntimeError("Exception during insertion into database.")
 
     db.session.commit()
@@ -77,7 +77,7 @@ def ml_task_runner(self, prep, model, res_path, cursor, parameters):
                             'status': 'Inserting to database finished. Sending mail'})
 
     # Отправка сообщения на почту
-    celeryLogSuccessAndEmail(self.id, start_time, parameters.get('personEmail'), prediction)
+    celeryLogSuccessAndEmail(self.request.id, start_time, parameters.get('personEmail'), prediction)
 
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
             'result': prediction}

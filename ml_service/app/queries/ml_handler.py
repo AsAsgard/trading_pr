@@ -14,7 +14,7 @@ from app.db_entities.results_view import Results
 from app.queries.resources_handler import res_parameters
 from app.queries.preprocessors_handler import prep_parameters
 from app.queries.models_handler import model_parameters
-
+from app.celery_tasks.run_ml_task import ml_task_runner
 
 ml_handler = Blueprint('ml_handler', __name__, url_prefix="/predictions")
 
@@ -23,10 +23,6 @@ ml_handler = Blueprint('ml_handler', __name__, url_prefix="/predictions")
 @ml_handler.route('/run', methods=['POST'])
 @initialProcessing
 def run_prediction(start_time, query_id):
-    from app.celery_tasks.run_ml_task import ml_task_runner
-#    code = 501
-#    logFail(query_id, start_time, code)
-#    abort(code)
 
     request_data = request.get_json()
 
@@ -65,7 +61,6 @@ def run_prediction(start_time, query_id):
 
     importlib.invalidate_caches()
 
-    model = None
     try:
         model_spec = importlib.util.spec_from_file_location('Model', model_path)
         class_model = importlib.util.module_from_spec(model_spec)
@@ -76,8 +71,6 @@ def run_prediction(start_time, query_id):
         logFail(query_id, start_time, code)
         abort(code, f"Bad model file.")
 
-
-    prep = None
     try:
         prep_spec = importlib.util.spec_from_file_location('Preprocessor', prep_path)
         class_prep = importlib.util.module_from_spec(prep_spec)

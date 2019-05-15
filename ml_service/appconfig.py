@@ -60,10 +60,12 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LOGGER_NAME = 'devel_logger'
     MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 465
-    MAIL_USE_SSL = True
+    MAIL_PORT = 587
+    MAIL_USE_SSL = False
+    MAIL_USE_TSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
     CELERY_BROKER_URL = 'redis://0.0.0.0:6379/'
     CELERY_RESULT_BACKEND = 'redis://0.0.0.0:6379/'
 
