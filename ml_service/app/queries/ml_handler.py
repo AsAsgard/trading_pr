@@ -23,9 +23,10 @@ ml_handler = Blueprint('ml_handler', __name__, url_prefix="/predictions")
 @ml_handler.route('/run', methods=['POST'])
 @initialProcessing
 def run_prediction(start_time, query_id):
-    code = 501
-    logFail(query_id, start_time, code)
-    abort(code)
+    from app.celery_tasks.run_ml_task import ml_task_runner
+#    code = 501
+#    logFail(query_id, start_time, code)
+#    abort(code)
 
     request_data = request.get_json()
 
@@ -50,13 +51,13 @@ def run_prediction(start_time, query_id):
         logFail(query_id, start_time, code)
         abort(code, f"No {model_parameters.get('entity')} with this filename.")
 
-    prep_path = os.path.join(prep_parameters.get('folder'), request_data.get('model'))
+    prep_path = os.path.join(prep_parameters.get('folder'), request_data.get('preprocessor'))
     if not os.path.isfile(prep_path):
         code = 404
         logFail(query_id, start_time, code)
         abort(code, f"No {prep_parameters.get('entity')} with this filename.")
 
-    res_path = os.path.join(res_parameters.get('folder'), request_data.get('model'))
+    res_path = os.path.join(res_parameters.get('folder'), request_data.get('resource'))
     if not os.path.isfile(res_path):
         code = 404
         logFail(query_id, start_time, code)
@@ -64,53 +65,80 @@ def run_prediction(start_time, query_id):
 
     importlib.invalidate_caches()
 
-    class_model = None
+    model = None
     try:
         model_spec = importlib.util.spec_from_file_location('Model', model_path)
         class_model = importlib.util.module_from_spec(model_spec)
         model_spec.loader.exec_module(class_model)
-    except ImportError:
+        model = class_model.Model()
+    except (ImportError, AttributeError, TypeError):
         code = 400
         logFail(query_id, start_time, code)
         abort(code, f"Bad model file.")
 
-    class_prep = None
+
+    prep = None
     try:
         prep_spec = importlib.util.spec_from_file_location('Preprocessor', prep_path)
         class_prep = importlib.util.module_from_spec(prep_spec)
         prep_spec.loader.exec_module(class_prep)
-    except ImportError:
+        prep = class_prep.Preprocessor()
+    except (ImportError, AttributeError, TypeError):
         code = 400
         logFail(query_id, start_time, code)
         abort(code, f"Bad preprocessor file.")
+
+    parameters = {
+        'model': model_path,
+        'preprocessor': prep_path,
+        'resource': res_path,
+        'personEmail': request.headers.get('email')
+    }
 
     # взять курсор
     cursor = None
 
-    data = None
-    try:
-        prep = class_prep()
-        data = prep.preprocess(cursor)
-    except (AttributeError, TypeError):
-        code = 400
-        logFail(query_id, start_time, code)
-        abort(code, f"Bad preprocessor file.")
-    except:
-        raise
+    # в Celery
+    task = ml_task_runner.apply_async(args=[prep_path, model_path, res_path, cursor, parameters])
+    # --------------------------
 
-    prediction = None
-    try:
-        model = class_model()
-        model.load(res_path)
-        prediction = model.predict(data)
-    except (AttributeError, TypeError):
-        code = 400
-        logFail(query_id, start_time, code)
-        abort(code, f"Bad model file.")
-    except:
-        raise
+    logSuccess(query_id, start_time)
 
-    return prediction
+    return jsonify(task_id=task.id), 202
+
+
+@ml_handler.route('/status/<task_id>', methods=['GET'])
+@initialProcessing
+def check_status(task_id, start_time, query_id):
+    from app.celery_tasks.run_ml_task import ml_task_runner
+    task = ml_task_runner.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        # job did not start yet
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 100,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 100),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 100,
+            'total': 100,
+            'status': str(task.info),  # this is the exception raised
+        }
+    logSuccess(query_id, start_time)
+    return jsonify(response), 200
 
 
 # Список результатов для пользователя

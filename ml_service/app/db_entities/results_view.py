@@ -10,7 +10,7 @@ class Results(db.Model):
     __tablename__ = "Results"
     __table_args__ = {'extend_existing': True}
 
-    personid = db.Column(db.Integer, nullable=False, primary_key=True)
+    personEmail = db.Column(db.String(80), nullable=False, primary_key=True)
     model = db.Column(db.String(80), nullable=False, primary_key=True)
     preprocessor = db.Column(db.String(80), nullable=False, primary_key=True)
     resource = db.Column(db.String(80), nullable=False, primary_key=True)
@@ -18,5 +18,5 @@ class Results(db.Model):
     result = db.Column(db.String(80))
 
     def __repr__(self):
-        return f'{type(self).__name__} <{self.personid}>: <{self.model}>-<{self.preprocessor}>-<{self.resource}>:' \
+        return f'{type(self).__name__} <{self.personEmail}>: <{self.model}>-<{self.preprocessor}>-<{self.resource}>:' \
                f'{self.datetime}'
