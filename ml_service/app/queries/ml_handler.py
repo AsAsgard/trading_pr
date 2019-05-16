@@ -2,8 +2,6 @@
 # coding: utf-8
 
 import os
-import importlib
-import importlib.util
 from flask import Blueprint
 from app.auxiliary.query_tools import initialProcessing
 from app.auxiliary.query_tools import logFail, logSuccess
@@ -59,45 +57,41 @@ def run_prediction(start_time, query_id):
         logFail(query_id, start_time, code)
         abort(code, f"No {res_parameters.get('entity')} with this filename.")
 
-    importlib.invalidate_caches()
-
-    try:
-        model_spec = importlib.util.spec_from_file_location('Model', model_path)
-        class_model = importlib.util.module_from_spec(model_spec)
-        model_spec.loader.exec_module(class_model)
-        model = class_model.Model()
-    except (ImportError, AttributeError, TypeError):
-        code = 400
-        logFail(query_id, start_time, code)
-        abort(code, f"Bad model file.")
-
-    try:
-        prep_spec = importlib.util.spec_from_file_location('Preprocessor', prep_path)
-        class_prep = importlib.util.module_from_spec(prep_spec)
-        prep_spec.loader.exec_module(class_prep)
-        prep = class_prep.Preprocessor()
-    except (ImportError, AttributeError, TypeError):
-        code = 400
-        logFail(query_id, start_time, code)
-        abort(code, f"Bad preprocessor file.")
 
     parameters = {
         'model': model_path,
         'preprocessor': prep_path,
         'resource': res_path,
-        'personEmail': request.headers.get('email')
+        'personEmail': request.headers.get('email'),
+        'from': request_data.get('from'),
+        'to': request_data.get('to'),
+        'ticker': request_data.get('ticker')
     }
 
-    # взять курсор
-    cursor = None
-
     # в Celery
-    task = ml_task_runner.apply_async(args=[prep_path, model_path, res_path, cursor, parameters])
+    #task = ml_task_runner.apply_async(args=[parameters])
     # --------------------------
+    from app.auxiliary.transaction import transaction
+    from app.auxiliary.celery_tools import celeryLogFailAndEmail
+    try:
+        with transaction():
+            full_result = Results()
+            full_result.model = os.path.basename(parameters.get('model'))
+            full_result.preprocessor = os.path.basename(parameters.get('preprocessor'))
+            full_result.resource = os.path.basename(parameters.get('resource'))
+            full_result.personEmail = parameters.get('personEmail')
+            full_result.result = "Good prediction"
+            db.session.add(full_result)
+    except Exception as ex:
+        celeryLogFailAndEmail("434343434", start_time, parameters.get('personEmail'), type(ex).__name__)
+        raise RuntimeError("Exception during insertion into database.")
+
+    db.session.commit()
 
     logSuccess(query_id, start_time)
 
-    return jsonify(task_id=task.id), 202
+    #return jsonify(task_id=task.id), 202
+    return jsonify(task_id=5), 202
 
 
 @ml_handler.route('/status/<task_id>', methods=['GET'])
