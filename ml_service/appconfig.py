@@ -59,10 +59,10 @@ class Config(object):
                               f"@{DB_CONFIG['host']}/{DB_CONFIG['dbname']}?charset=utf8"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LOGGER_NAME = 'devel_logger'
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 587
-    MAIL_USE_SSL = False
-    MAIL_USE_TSL = True
+    MAIL_SERVER = 'smtp.yandex.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USE_TSL = False
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')

@@ -22,14 +22,18 @@ def upload_file(start_time, query_id):
     if 'file' not in request.files or not request.files['file'].filename:
         code = 400
         logFail(query_id, start_time, code)
-        abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
+        abort(code, "Bad request body. Expected file with key 'file' and correct filename in request body.")
 
-    if not isinstance(request.files['file'].filename, str) or len(request.files['file'].filename) > 99:
+    filename = request.files['file'].filename \
+        if not request.headers.get('filename') \
+        else request.headers.get('filename')
+
+    if not isinstance(filename, str) or len(filename) > 99:
         code = 400
         logFail(query_id, start_time, code)
         abort(code, "Too long or bad filename.")
 
-    file = Files(filename=request.files['file'].filename)
+    file = Files(filename=filename)
     try:
         with transaction():
             with transaction():
@@ -60,9 +64,13 @@ def change_file(fileid, start_time, query_id):
     if 'file' not in request.files or not request.files['file'].filename:
         code = 400
         logFail(query_id, start_time, code)
-        abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
+        abort(code, "Bad request body. Expected file with key 'file' and correct filename in request body.")
 
-    if not isinstance(request.files['file'].filename, str) or len(request.files['file'].filename) > 99:
+    filename = request.files['file'].filename \
+        if not request.headers.get('filename') \
+        else request.headers.get('filename')
+
+    if not isinstance(filename, str) or len(filename) > 99:
         code = 400
         logFail(query_id, start_time, code)
         abort(code, "Too long or bad filename.")
@@ -72,7 +80,7 @@ def change_file(fileid, start_time, query_id):
         with transaction():
             db.session.query(Data).filter_by(fileid=fileid).delete()
             handleFile(fileid, request.files['file'])
-            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+            Files.query.filter_by(fileid=fileid).update({'filename': filename})
     except HTTPException as ex:
         db.session.rollback()
         logFail(query_id, start_time, ex.code)
@@ -97,9 +105,13 @@ def update_file(fileid, start_time, query_id):
     if 'file' not in request.files or not request.files['file'].filename:
         code = 400
         logFail(query_id, start_time, code)
-        abort(code, "Bad request body. Expected .csv file with key 'file' and correct filename in request body.")
+        abort(code, "Bad request body. Expected file with key 'file' and correct filename in request body.")
 
-    if not isinstance(request.files['file'].filename, str) or len(request.files['file'].filename) > 99:
+    filename = request.files['file'].filename \
+        if not request.headers.get('filename') \
+        else request.headers.get('filename')
+
+    if not isinstance(filename, str) or len(filename) > 99:
         code = 400
         logFail(query_id, start_time, code)
         abort(code, "Too long or bad filename.")
@@ -108,7 +120,7 @@ def update_file(fileid, start_time, query_id):
     try:
         with transaction():
             handleFile(fileid, request.files['file'])
-            Files.query.filter_by(fileid=fileid).update({'filename': request.files['file'].filename})
+            Files.query.filter_by(fileid=fileid).update({'filename': filename})
     except HTTPException as ex:
         db.session.rollback()
         logFail(query_id, start_time, ex.code)

@@ -8,7 +8,7 @@ from app.auxiliary import storage_functions
 resources_handler = Blueprint('resources_handler', __name__, url_prefix="/resources")
 res_parameters = {
     'folder': upload_folder + '/resources/',
-    'extension': '.pkl',
+    'extension': 'binary',
     'entity': 'resource',
 }
 
