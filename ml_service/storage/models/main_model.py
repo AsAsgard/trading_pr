@@ -27,8 +27,10 @@ class Model:
         logloss = log_loss(y_pred=y_hat_proba, y_true=y_test)
         roc_auc = roc_auc_score(y_score=y_hat, y_true=y_test)
 
-        result = {'accuracy': accuracy, 'precision': precision,
-                  'recall': recall, 'log_loss': logloss,
-                  'roc_auc':roc_auc}
+        result = {'accuracy': float(accuracy),
+                  'precision': float(precision),
+                  'recall': float(recall),
+                  'log_loss': float(logloss),
+                  'roc_auc':float(roc_auc)}
 
         return result
