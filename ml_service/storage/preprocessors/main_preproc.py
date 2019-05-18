@@ -25,7 +25,7 @@ class Preprocessor:
                                      'price_open_close_dif'])
 
         all_data = pd.DataFrame(list(cursor), columns=cols)
-        all_data['time'] = (datetime.datetime.min + all_data['time']).time()
+        all_data['dt'] = all_data['date'] + all_data['time']
         all_data['dt'] = all_data['dt'].apply(
             lambda dt: datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute))
 
