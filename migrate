@@ -1,0 +1,4 @@
+#!/bin/bash
+
+python request_handler/migrate.py
+python ml_service/migrate.py

@@ -3,3 +3,5 @@
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 docker build -t $DOCKER_USERNAME/request_handler:latest ./request_handler
 docker push $DOCKER_USERNAME/request_handler:latest
+docker build -t $DOCKER_USERNAME/ml_service:latest ./ml_service
+docker push $DOCKER_USERNAME/ml_service:latest

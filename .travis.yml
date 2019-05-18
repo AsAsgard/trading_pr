@@ -7,7 +7,7 @@ services:
   - docker
 before_install:
   - sudo mysql -e "use mysql; update user set authentication_string=PASSWORD('$MYSQL_TRADING_PASS') where User='root'; update user set plugin='mysql_native_password';FLUSH PRIVILEGES;"
-  - sudo mysql_upgrade -u root -ptrading_pass
+  - sudo mysql_upgrade -u root -p$MYSQL_TRADING_PASS
   - sudo service mysql restart
 install:
   - pip install -r requirements_test.txt
