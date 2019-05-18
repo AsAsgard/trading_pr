@@ -11,4 +11,10 @@ class Model:
 
     def predict(self, data):
         time.sleep(30)
-        return "Sto pudovo classnaya strategiya!"
+        return {
+            'accuracy': 3.12332,
+            'precision': 8.1323,
+            'recall': 2.132,
+            'roc_auc': 32.323,
+            'log_loss': 2.3245
+        }

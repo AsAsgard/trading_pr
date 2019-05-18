@@ -6,9 +6,11 @@ import time
 import importlib.util
 from cel_api import celery_api
 from app.database import db
-from app.auxiliary.celery_tools import celeryLogFailAndEmail, celeryLogSuccessAndEmail
+from app.auxiliary.celery_tools import celeryLogFailAndEmail, celeryLogSuccessAndEmail, \
+                                       getDateAndTimeByKey, addWhereToExpression
 from app.auxiliary.transaction import transaction
 from app.db_entities.results_view import Results
+from app.logger import Logger
 
 
 @celery_api.task(bind=True)
@@ -44,7 +46,39 @@ def ml_task_runner(self, parameters):
                             'status': 'Importing finished. Receiving cursor.'})
 
     # взять курсор
-    cursor = None
+    dt_key = 'From'
+    (dateFrom, timeFrom) = getDateAndTimeByKey(parameters, dt_key, self.request.id)
+
+    dt_key = 'To'
+    (dateTo, timeTo) = getDateAndTimeByKey(parameters, dt_key, self.request.id)
+
+    tickers = parameters.get('ticker')
+
+    if tickers and not isinstance(tickers, list):
+        tickers = [tickers]
+
+    expr = "SELECT * FROM Data"
+
+    if tickers or dateFrom or timeFrom or dateTo or timeTo:
+        expr = addWhereToExpression(expr, tickers, dateFrom, timeFrom, dateTo, timeTo)
+        if not expr:
+            celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'),
+                                  "CombineError(Not an exception)")
+            raise RuntimeError("Bad structure of finder fields.")
+
+    expr = " ".join([expr, "ORDER BY date DESC, time DESC;"])
+
+    Logger.debug(expr)
+
+    from app.fl_app import application
+
+    with application.app_context():
+        try:
+            cursor = db.engine.raw_connection().cursor()
+            cursor.execute(expr)
+        except Exception as ex:
+            celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+            raise RuntimeError("Exception during getting cursor from database.")
 
     self.update_state(state='PROGRESS',
                       meta={'current': 10, 'total': 100,
@@ -90,20 +124,27 @@ def ml_task_runner(self, parameters):
                             'status': 'Prediction made. Adding it to database.'})
 
     # Вставка в db
-    try:
-        with transaction():
-            full_result = Results()
-            full_result.model = os.path.basename(parameters.get('model'))
-            full_result.preprocessor = os.path.basename(parameters.get('preprocessor'))
-            full_result.resource = os.path.basename(parameters.get('resource'))
-            full_result.personEmail = parameters.get('personEmail')
-            full_result.result = prediction
-            db.session.add(full_result)
-    except Exception as ex:
-        celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
-        raise RuntimeError("Exception during insertion into database.")
+    with application.app_context():
+        try:
+            with transaction():
+                full_result = Results()
+                full_result.model = os.path.basename(parameters.get('model'))
+                full_result.preprocessor = os.path.basename(parameters.get('preprocessor'))
+                full_result.resource = os.path.basename(parameters.get('resource'))
+                full_result.personEmail = parameters.get('personEmail')
+                for key in prediction.keys():
+                    try:
+                        setattr(full_result, key, prediction.get(key))
+                    except (AttributeError, TypeError):
+                        Logger.warn(f"Wrong attribute or type  in predicton. "
+                                    f"Continue running task. task_id: {self.request.id} \n"
+                                    f"key=<{key}>; value=<{prediction.get(key)}>")
+                db.session.add(full_result)
+        except Exception as ex:
+            celeryLogFailAndEmail(self.request.id, start_time, parameters.get('personEmail'), type(ex).__name__)
+            raise RuntimeError("Exception during insertion into database.")
 
-    db.session.commit()
+        db.session.commit()
 
     self.update_state(state='PROGRESS',
                       meta={'current': 97, 'total': 100,
@@ -114,4 +155,3 @@ def ml_task_runner(self, parameters):
 
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
             'result': prediction}
-
