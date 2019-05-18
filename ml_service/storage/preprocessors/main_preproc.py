@@ -3,7 +3,6 @@
 
 import pandas as pd
 import numpy as np
-import time
 import datetime
 
 
@@ -29,30 +28,32 @@ class Preprocessor:
         all_data['dt'] = all_data['dt'].apply(
             lambda dt: datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute))
 
-        for dt in all_data['dt'].unique():
-            minute_data = all_data.loc[all_data['dt'] == dt]
+        for ticker in all_data['ticker'].unique():
+            ticker_data = all_data.loc[all_data['ticker'] == ticker]
+            for dt in ticker_data['dt'].unique():
+                minute_data = ticker_data.loc[all_data['dt'] == dt]
 
-            x_series = pd.Series()
-            x_series['price_open'] = minute_data.iloc[0]['open']
-            x_series['price_max'] = minute_data['high'].max()
-            x_series['price_min'] = minute_data['low'].min()
-            x_series['price_close'] = minute_data.iloc[-1]['close']
-            x_series['vol'] = minute_data['vol'].sum()
-            x_series['price_mean'] = minute_data['open'].mean()
-            x_series['price_std'] = minute_data['open'].std()
+                x_series = pd.Series()
+                x_series['price_open'] = minute_data.iloc[0]['open']
+                x_series['price_max'] = minute_data['high'].max()
+                x_series['price_min'] = minute_data['low'].min()
+                x_series['price_close'] = minute_data.iloc[-1]['close']
+                x_series['vol'] = minute_data['vol'].sum()
+                x_series['price_mean'] = minute_data['open'].mean()
+                x_series['price_std'] = minute_data['open'].std()
 
-            price_features = ['open', 'max', 'min', 'close']
-            x_series = self._make_difs(x_series, suffix='price_',
-                                       features=price_features)
-            x_series['price_close_open_dif'] = - x_series['price_open_close_dif']
-            x_series.drop('price_open_close_dif', inplace=True)
+                price_features = ['open', 'max', 'min', 'close']
+                x_series = self._make_difs(x_series, suffix='price_',
+                                           features=price_features)
+                x_series['price_close_open_dif'] = - x_series['price_open_close_dif']
+                x_series.drop('price_open_close_dif', inplace=True)
 
-            if data.shape[0] != 0:
-                for feature in ['price_open', 'price_min', 'price_max', 'vol']:
-                    x_series[feature + '_prev_dif'] = \
-                        x_series[feature] - data.iloc[-1][feature]
+                if data.shape[0] != 0:
+                    for feature in ['price_open', 'price_min', 'price_max', 'vol']:
+                        x_series[feature + '_prev_dif'] = \
+                            x_series[feature] - data.iloc[-1][feature]
 
-            data = data.append(x_series, ignore_index=True)
+                data = data.append(x_series, ignore_index=True)
 
         return np.array(data)[::-1]
 
