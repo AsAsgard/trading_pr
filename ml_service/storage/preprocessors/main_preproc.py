@@ -29,10 +29,8 @@ class Preprocessor:
         all_data['dt'] = all_data['dt'].apply(
             lambda dt: datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute))
 
-        for dt in all_data['time'].unique():
+        for dt in all_data['dt'].unique():
             minute_data = all_data.loc[all_data['dt'] == dt]
-
-            minute_data.drop(['ticker', 'per'], axis=1, inplace=True)
 
             x_series = pd.Series()
             x_series['price_open'] = minute_data.iloc[0]['open']
