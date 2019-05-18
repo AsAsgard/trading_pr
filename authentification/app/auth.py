@@ -21,7 +21,7 @@ def login_post():
     try:
         email = request.headers['email']
         password = request.headers['password']
-        remember = True if (request.headers['remember'] != None) else False
+        remember = True if (request.headers['remember'] is not None) else False
     # Use with GUI
     except KeyError:
         email = request.form.get('email')
@@ -34,7 +34,8 @@ def login_post():
     if not user or not check_password_hash(user.password, password): 
         flash('Please check your login details and try again.')
         print(''.join([nginx_url, url_for('auth.login')]))
-        return redirect(''.join([nginx_url, url_for('auth.login')])) # if user doesn't exist or password is wrong, reload the page
+        return redirect(''.join([nginx_url, url_for('auth.login')]))
+        # if user doesn't exist or password is wrong, reload the page
 
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
@@ -53,9 +54,10 @@ def signup_post():
     name = request.form.get('name')
     password = request.form.get('password')
 
-    user = User.query.filter_by(email=email).first()  # if this returns a user, then the email already exists in database
+    user = User.query.filter_by(email=email).first()
+    # if this returns a user, then the email already exists in database
 
-    if user: # if a user is found, we want to redirect back to signup page so user can try again  
+    if user:  # if a user is found, we want to redirect back to signup page so user can try again
         flash('Email address already exists')
         return redirect(url_for('auth.signup'))
 
