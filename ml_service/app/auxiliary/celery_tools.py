@@ -82,10 +82,10 @@ def addWhereToExpression(expr, tickers, dateFrom, timeFrom, dateTo, timeTo):
             return None
 
         if dateFrom and not timeFrom:
-            timeFrom = datetime.time(0,0,0)
+            timeFrom = datetime.time(0, 0, 0)
 
         if dateTo and not timeTo:
-            timeTo = datetime.time(23,59,59)
+            timeTo = datetime.time(23, 59, 59)
 
         Logger.debug(dateFrom)
         Logger.debug(dateTo)

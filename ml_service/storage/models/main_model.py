@@ -31,6 +31,6 @@ class Model:
                   'precision': float(precision),
                   'recall': float(recall),
                   'log_loss': float(logloss),
-                  'roc_auc':float(roc_auc)}
+                  'roc_auc': float(roc_auc)}
 
         return result

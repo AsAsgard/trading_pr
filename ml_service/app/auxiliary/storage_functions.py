@@ -44,7 +44,7 @@ def storage_replace(parameters, start_time, query_id):
         code = 400
         logFail(query_id, start_time, code)
         abort(code, f"Bad request body. Expected {parameters.get('extension')} file "
-        f"with key 'file' and correct filename in request body.")
+                    f"with key 'file' and correct filename in request body.")
 
     filename = request.files['file'].filename \
         if not request.headers.get('filename') \
@@ -77,7 +77,7 @@ def storage_insert(parameters, start_time, query_id):
         code = 400
         logFail(query_id, start_time, code)
         abort(code, f"Bad request body. Expected {parameters.get('extension')} file "
-        f"with key 'file' and correct filename in request body.")
+                    f"with key 'file' and correct filename in request body.")
 
     filename = request.files['file'].filename \
         if not request.headers.get('filename') \

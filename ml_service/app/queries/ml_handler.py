@@ -57,7 +57,6 @@ def run_prediction(start_time, query_id):
         logFail(query_id, start_time, code)
         abort(code, f"No {res_parameters.get('entity')} with this filename.")
 
-
     parameters = {
         'model': model_path,
         'preprocessor': prep_path,
