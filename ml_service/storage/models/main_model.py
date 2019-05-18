@@ -7,8 +7,11 @@ from sklearn.metrics import accuracy_score, recall_score, precision_score, log_l
 
 class Model:
 
+    def __init__(self):
+        self.model = xgb.XGBClassifier()
+
     def load(self, res_path):
-        self.model = xgb.XGBClassifier.load_model(res_path)
+        self.model.load_model(res_path)
 
     def predict(self, data):
         y_test = data[:, -1]
