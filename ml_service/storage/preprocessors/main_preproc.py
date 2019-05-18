@@ -20,7 +20,7 @@ class Preprocessor:
                                      'price_min_prev_dif', 'price_max_prev_dif',
                                      'price_close_prev_dif', 'vol_prev_dif',
                                      'price_mean_prev_dif',
-                                     'price_close_open_dif'])
+                                     'price_open_close_dif'])
 
         while(1):
             try:
@@ -47,6 +47,8 @@ class Preprocessor:
             price_features = ['open', 'max', 'min', 'close']
             x_series = self._make_difs(x_series, suffix='price_',
                                        features=price_features)
+            x_series['price_close_open_dif'] = - x_series['price_open_close_dif']
+            x_series.drop('price_open_close_dif', inplace=True)
 
             if data.shape[0] != 0:
                 for feature in ['price_open', 'price_min', 'price_max', 'vol']:
