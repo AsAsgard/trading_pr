@@ -17,7 +17,7 @@ class Model:
     def predict(self, data):
 
         y_test = (data[:, -1] > 0).astype(int)
-        clf._le = LabelEncoder().fit(y_test)
+        self.model._le = LabelEncoder().fit(y_test)
         y_hat = self.model.predict(data[:, :-1])
         y_hat_proba = self.model.predict_proba(data[:, :-1])
 
