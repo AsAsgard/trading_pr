@@ -11,7 +11,7 @@ class Preprocessor:
 
     def preprocess(self, cursor):
 
-        cols = ['ticker', 'per', 'date', 'time', 'open', 'high', 'low', 'close', 'vol']
+        cols = ['fileid', 'ticker', 'per', 'date', 'time', 'open', 'high', 'low', 'close', 'vol', 'created', 'updated']
 
         data = pd.DataFrame(columns=['price_open', 'price_max', 'price_min',
                                      'price_close', 'vol',
