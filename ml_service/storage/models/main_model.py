@@ -22,7 +22,7 @@ class Model:
         precision = precision_score(y_pred=y_hat, y_true=y_test)
         recall = recall_score(y_pred=y_hat, y_true=y_test)
         logloss = log_loss(y_pred=y_hat_proba, y_true=y_test)
-        roc_auc = roc_auc_score(y_pred=y_hat_proba, y_true=y_test)
+        roc_auc = roc_auc_score(y_score=y_hat, y_true=y_test)
 
         result = {'accuracy': accuracy, 'precision': precision,
                   'recall': recall, 'log_loss': logloss,
