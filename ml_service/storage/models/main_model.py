@@ -3,6 +3,7 @@
 
 import xgboost as xgb
 from sklearn.metrics import accuracy_score, recall_score, precision_score, log_loss, roc_auc_score
+from sklearn.preprocessing import LabelEncoder
 
 
 class Model:
@@ -16,6 +17,7 @@ class Model:
     def predict(self, data):
 
         y_test = (data[:, -1] > 0).astype(int)
+        clf._le = LabelEncoder().fit(y_test)
         y_hat = self.model.predict(data[:, :-1])
         y_hat_proba = self.model.predict_proba(data[:, :-1])
 
