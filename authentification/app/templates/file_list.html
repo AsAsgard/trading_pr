@@ -1,0 +1,45 @@
+<!-- templates/file_list.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+Список файлов:
+</h1>
+<style>
+	.ptr {
+		cursor: pointer;
+	}
+</style>
+<script type="text/javascript" language="javascript">
+	var ch_disp = function( id )
+		{
+			var el = document.getElementById( id );
+			el.style.display = ( el.style.display == 'block' )? 'none' : 'block';
+		}
+</script>
+<body>
+<table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+    <thead>
+        <tr>
+            <th>File ID</th>
+            <th>File name</th>
+            <th>Count rows</th>
+        </tr>
+    </thead>
+    {% for item in file_list %}
+    <tr>
+        <td>
+            {{item["fileid"]}}
+        </td>
+        <td>
+            {{item["filename"]}}
+        </td>
+        <td>
+            {{item["count_rows"]}}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+{% endblock %}

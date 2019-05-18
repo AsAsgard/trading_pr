@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+<script type='text/javascript' src="http://code.highcharts.com/highcharts.js"></script>
+<script type='text/javascript' src="http://code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript">
+
+$(window).load(function(){
+
+$("#select").on('change', function(){
+    if($(this).val() == "DELETE"){
+        $("#file").hide();
+    }
+    else {
+        $("#file").show();
+    }
+})
+
+}); // Closes window.load
+</script>
+<body>
+	<div class="column is-4 is-offset-4">
+		<div class="box">
+            <form enctype="multipart/form-data" method="POST" action='/profile/ml/models/processing'>
+            <div class="field">
+                <label class="label">File name</label>
+                    <div class="control">
+                        <input class="input" type="text" name="ID">
+                    </div>
+            </div>
+            <div class="field">
+                <label class="label">Request method</label>
+                <div class="control">
+                    <div class="select">
+                        <select name="select" id="select">
+                            <option value="POST" selected>POST</option>
+                            <option value="PATCH">PATCH</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <input class="input" type="file" name="file" id="file"  style="display:none">
+            </div>
+            <button class="button is-primary">Send message</button>
+            </form>
+        {% if ans %}
+            <div style="margin-bottom: 10px;">
+            <a class="has-text-success">Succes</a>
+            </div>
+        {% endif %}
+		</div>
+	</div>
+
+</body>
+{% endblock %}

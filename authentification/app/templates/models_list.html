@@ -19,8 +19,19 @@
 		}
 </script>
 <body>
-<p>
-    {{ file_list }}
-</p>
+<table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+    <thead>
+        <tr>
+            <th>File name</th>
+        </tr>
+    </thead>
+    {% for item in file_list %}
+    <tr>
+        <td>
+            {{item}}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 </body>
 {% endblock %}
