@@ -6,4 +6,4 @@ pytest-flask-sqlalchemy==1.0.2
 coveralls==1.7.0
 -r request_handler/requirements/production.txt
 -r ml_service/requirements/production.txt
--r authentification/production.txt
+-r authentification/requirements/production.txt
