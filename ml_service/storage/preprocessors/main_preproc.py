@@ -57,7 +57,7 @@ class Preprocessor:
 
             data.append(x_series, ignore_index=True)
 
-        return np.array(data)
+        return np.array(data)[::-1]
 
     def _make_difs(self, x, suffix, features):
         for i in range(len(features)):
