@@ -14,7 +14,8 @@ class Model:
         self.model.load_model(res_path)
 
     def predict(self, data):
-        y_test = data[:, -1]
+
+        y_test = (data[:, -1] > 0).astype(int)
         y_hat = self.model.predict(data[:, :-1])
         y_hat_proba = self.model.predict_proba(data[:, :-1])
 
@@ -27,4 +28,5 @@ class Model:
         result = {'accuracy': accuracy, 'precision': precision,
                   'recall': recall, 'log_loss': logloss,
                   'roc_auc':roc_auc}
+
         return result
