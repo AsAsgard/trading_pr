@@ -55,7 +55,7 @@ class Preprocessor:
                     x_series[feature + '_prev_dif'] = \
                         x_series[feature] - data.iloc[-1][feature]
 
-            data.append(x_series, ignore_index=True)
+            data = data.append(x_series, ignore_index=True)
 
         return np.array(data)[::-1]
 
