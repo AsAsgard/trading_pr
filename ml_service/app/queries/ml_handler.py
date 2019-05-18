@@ -63,35 +63,20 @@ def run_prediction(start_time, query_id):
         'preprocessor': prep_path,
         'resource': res_path,
         'personEmail': request.headers.get('email'),
-        'from': request_data.get('from'),
-        'to': request_data.get('to'),
+        'dateFrom': request_data.get('dateFrom'),
+        'timeFrom': request_data.get('timeFrom'),
+        'dateTo': request_data.get('dateTo'),
+        'timeTo': request_data.get('timeTo'),
         'ticker': request_data.get('ticker')
     }
 
     # в Celery
-    #task = ml_task_runner.apply_async(args=[parameters])
+    task = ml_task_runner.apply_async(args=[parameters])
     # --------------------------
-    from app.auxiliary.transaction import transaction
-    from app.auxiliary.celery_tools import celeryLogFailAndEmail
-    try:
-        with transaction():
-            full_result = Results()
-            full_result.model = os.path.basename(parameters.get('model'))
-            full_result.preprocessor = os.path.basename(parameters.get('preprocessor'))
-            full_result.resource = os.path.basename(parameters.get('resource'))
-            full_result.personEmail = parameters.get('personEmail')
-            full_result.result = "Good prediction"
-            db.session.add(full_result)
-    except Exception as ex:
-        celeryLogFailAndEmail("434343434", start_time, parameters.get('personEmail'), type(ex).__name__)
-        raise RuntimeError("Exception during insertion into database.")
-
-    db.session.commit()
 
     logSuccess(query_id, start_time)
 
-    #return jsonify(task_id=task.id), 202
-    return jsonify(task_id=5), 202
+    return jsonify(task_id=task.id), 202
 
 
 @ml_handler.route('/status/<task_id>', methods=['GET'])
@@ -135,7 +120,7 @@ def result_list(start_time, query_id):
     try:
         # Соединение таблиц и получение информации
         personinf = db.session.query(Results)\
-                    .filter_by(personid=request.headers.get('personid'))\
+                    .filter_by(personEmail=request.headers.get('email'))\
                     .order_by(Results.datetime)\
                     .all()
     except HTTPException as ex:
@@ -147,4 +132,13 @@ def result_list(start_time, query_id):
     if not personinf:
         return jsonify("Empty set"), 200
 
-    return jsonify(personinf), 200
+    return jsonify([
+        {
+            'model': result.model,
+            'preprocessor': result.preprocessor,
+            'resource': result.resource,
+            'datetime': result.datetime,
+            'result': result.result,
+        }
+        for result in personinf
+    ]), 200

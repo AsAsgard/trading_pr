@@ -15,7 +15,11 @@ class Results(db.Model):
     preprocessor = db.Column(db.String(80), nullable=False, primary_key=True)
     resource = db.Column(db.String(80), nullable=False, primary_key=True)
     datetime = db.Column(db.DateTime, default=datetime.now, server_default=text('now()'), primary_key=True)
-    result = db.Column(db.String(80))
+    accuracy = db.Column(db.Float)
+    precision = db.Column(db.Float)
+    recall = db.Column(db.Float)
+    roc_auc = db.Column(db.Float)
+    log_loss = db.Column(db.Float)
 
     def __repr__(self):
         return f'{type(self).__name__} <{self.personEmail}>: <{self.model}>-<{self.preprocessor}>-<{self.resource}>:' \
