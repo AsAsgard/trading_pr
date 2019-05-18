@@ -15,8 +15,13 @@ class Model:
         y_hat = self.model.predict(data[:, :-1])
         y_hat_proba = self.model.predict_proba(data[:, :-1])
 
-        accuracy_score(y_pred=y_hat, y_true=y_test)
-        precision_score(y_pred=y_hat, y_true=y_test)
-        recall_score(y_pred=y_hat, y_true=y_test)
-        log_loss(y_pred=y_hat_proba, y_true=y_test)
-        roc_auc_score(y_pred=y_hat_proba, y_true=y_test)
+        accuracy = accuracy_score(y_pred=y_hat, y_true=y_test)
+        precision = precision_score(y_pred=y_hat, y_true=y_test)
+        recall = recall_score(y_pred=y_hat, y_true=y_test)
+        logloss = log_loss(y_pred=y_hat_proba, y_true=y_test)
+        roc_auc = roc_auc_score(y_pred=y_hat_proba, y_true=y_test)
+
+        result = {'accuracy': accuracy, 'precision': precision,
+                  'recall': recall, 'log_loss': logloss,
+                  'roc_auc':roc_auc}
+        return result
