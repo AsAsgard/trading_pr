@@ -120,8 +120,8 @@ def result_list(start_time, query_id):
     try:
         # Соединение таблиц и получение информации
         personinf = db.session.query(Results)\
-                    .filter_by(personEmail=request.headers.get('email'))\
-                    .order_by(Results.datetime)\
+                    .filter_by(personEmail=request.headers.get('email')) \
+                    .order_by(Results.datetime) \
                     .all()
     except HTTPException as ex:
         logFail(query_id, start_time, ex.code)
@@ -138,7 +138,11 @@ def result_list(start_time, query_id):
             'preprocessor': result.preprocessor,
             'resource': result.resource,
             'datetime': result.datetime,
-            'result': result.result,
+            'accuracy': result.accuracy,
+            'precision': result.precision,
+            'recall': result.recall,
+            'roc_auc': result.roc_auc,
+            'log_loss': result.log_loss
         }
         for result in personinf
     ]), 200

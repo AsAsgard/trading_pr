@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import uuid
 from flask import Blueprint
 from flask import request, abort, jsonify
 from sqlalchemy import func
@@ -8,9 +9,9 @@ from app.database import db
 from app.auxiliary.transaction import transaction
 from app.db_entities.files_view import Files
 from app.db_entities.data_view import Data
-from app.auxiliary.file_handlers.file_handler import handleFile
 from werkzeug.exceptions import HTTPException
 from app.auxiliary.query_tools import initialProcessing, logFail, logSuccess
+from app.celery_tasks.upload_file_data import post_task, put_task, patch_task
 
 data_handler = Blueprint('data_handler', __name__, url_prefix="/data")
 
@@ -33,23 +34,21 @@ def upload_file(start_time, query_id):
         logFail(query_id, start_time, code)
         abort(code, "Too long or bad filename.")
 
-    file = Files(filename=filename)
-    try:
-        with transaction():
-            with transaction():
-                db.session.add(file)
-            db.session.flush()
-            handleFile(file.fileid, request.files['file'])
-    except HTTPException as ex:
-        db.session.query(Files).filter_by(fileid=file.fileid).delete()
-        logFail(query_id, start_time, ex.code)
-        raise
+    filepath = f"/tmp/{uuid.uuid4()}"
 
-    db.session.commit()
+    request.files['file'].save(filepath)
+
+    post_params = {
+        'filename': filename,
+        'filepath': filepath,
+        'personEmail': request.headers.get('email')
+    }
+
+    task = post_task.apply_async(args=[post_params])
 
     logSuccess(query_id, start_time)
 
-    return jsonify(fileid=file.fileid), 200
+    return jsonify(task_id=task.id), 202
 
 
 # Изменение файла
@@ -75,18 +74,19 @@ def change_file(fileid, start_time, query_id):
         logFail(query_id, start_time, code)
         abort(code, "Too long or bad filename.")
 
-    # Изменение в бд
-    try:
-        with transaction():
-            db.session.query(Data).filter_by(fileid=fileid).delete()
-            handleFile(fileid, request.files['file'])
-            Files.query.filter_by(fileid=fileid).update({'filename': filename})
-    except HTTPException as ex:
-        db.session.rollback()
-        logFail(query_id, start_time, ex.code)
-        raise
+    filepath = f"/tmp/{uuid.uuid4()}"
 
-    db.session.commit()
+    request.files['file'].save(filepath)
+
+    put_params = {
+        'filename': filename,
+        'filepath': filepath,
+        'fileid': fileid,
+        'personEmail': request.headers.get('email')
+    }
+
+    # Изменение в бд
+    put_task.apply_async(args=[put_params])
 
     logSuccess(query_id, start_time)
 
@@ -116,17 +116,19 @@ def update_file(fileid, start_time, query_id):
         logFail(query_id, start_time, code)
         abort(code, "Too long or bad filename.")
 
-    # Изменение в бд
-    try:
-        with transaction():
-            handleFile(fileid, request.files['file'])
-            Files.query.filter_by(fileid=fileid).update({'filename': filename})
-    except HTTPException as ex:
-        db.session.rollback()
-        logFail(query_id, start_time, ex.code)
-        raise
+    filepath = f"/tmp/{uuid.uuid4()}"
 
-    db.session.commit()
+    request.files['file'].save(filepath)
+
+    patch_params = {
+        'filename': filename,
+        'filepath': filepath,
+        'fileid': fileid,
+        'personEmail': request.headers.get('email')
+    }
+
+    # Изменение в бд
+    patch_task.apply_async(args=[patch_params])
 
     logSuccess(query_id, start_time)
 

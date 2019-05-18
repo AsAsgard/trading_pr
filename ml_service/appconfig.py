@@ -68,6 +68,7 @@ class Config(object):
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
     CELERY_BROKER_URL = 'redis://0.0.0.0:6379/'
     CELERY_RESULT_BACKEND = 'redis://0.0.0.0:6379/'
+    CELERY_DEFAULT_QUEUE = 'ml_service_queue'
 
 
 # Конфигурация выпуска
