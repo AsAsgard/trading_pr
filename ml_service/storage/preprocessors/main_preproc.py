@@ -3,6 +3,8 @@
 
 import pandas as pd
 import numpy as np
+import time
+import datetime
 
 
 class Preprocessor:
@@ -22,18 +24,15 @@ class Preprocessor:
                                      'price_mean_prev_dif',
                                      'price_open_close_dif'])
 
-        while(1):
-            try:
-                minute_data = pd.DataFrame(cursor.fetchone(), columns=cols)
-                for i in range(12):
-                    row = cursor.fetchone
-                    if row[2:4] != minute_data.iloc[0, 2:4]:
-                        break
-                    minute_data.append(row)
-            except:
-                break
+        all_data = pd.DataFrame(cursor.fetchall(), columns=cols)
+        all_data['time'] = (datetime.datetime.min + all_data['time']).time()
+        all_data['dt'] = all_data['dt'].apply(
+            lambda dt: datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute))
 
-            minute_data.drop(['ticker', 'per', 'date', 'time'], axis=1, inplace=True)
+        for dt in all_data['time'].unique():
+            minute_data = all_data.loc[all_data['dt'] == dt]
+
+            minute_data.drop(['ticker', 'per'], axis=1, inplace=True)
 
             x_series = pd.Series()
             x_series['price_open'] = minute_data.iloc[0]['open']
@@ -66,6 +65,3 @@ class Preprocessor:
                     x[suffix + features[i]] - x[suffix + features[j]]
 
         return x
-
-
-
