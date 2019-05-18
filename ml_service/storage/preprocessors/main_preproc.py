@@ -24,31 +24,36 @@ class Preprocessor:
 
         while(1):
             try:
-                minute_data = pd.DataFrame(cursor.fetchmany(12), columns=cols)
+                minute_data = pd.DataFrame(cursor.fetchone(), columns=cols)
+                for i in range(12):
+                    row = cursor.fetchone
+                    if row[2:4] != minute_data.iloc[0, 2:4]:
+                        break
+                    minute_data.append(row)
             except:
                 break
 
             minute_data.drop(['ticker', 'per', 'date', 'time'], axis=1, inplace=True)
-            
+
             x_series = pd.Series()
-            x_series['price_open'] = minute_data.loc[0, 'open']
+            x_series['price_open'] = minute_data.iloc[0]['open']
             x_series['price_max'] = minute_data['high'].max()
             x_series['price_min'] = minute_data['low'].min()
-            x_series['price_close'] = minute_data.loc[-1, 'close']
+            x_series['price_close'] = minute_data.iloc[-1]['close']
             x_series['vol'] = minute_data['vol'].sum()
             x_series['price_mean'] = minute_data['open'].mean()
             x_series['price_std'] = minute_data['open'].std()
 
             price_features = ['open', 'max', 'min', 'close']
             x_series = self._make_difs(x_series, suffix='price_',
-                                       features = price_features)
+                                       features=price_features)
 
             if data.shape[0] != 0:
-                for feature in ['price_open', 'price_max', 'price_max', 'vol']:
+                for feature in ['price_open', 'price_min', 'price_max', 'vol']:
                     x_series[feature + '_prev_dif'] = \
-                        x_series[feature] - data.loc[-1, feature]
+                        x_series[feature] - data.iloc[-1][feature]
 
-            data.append(x_series)
+            data.append(x_series, ignore_index=True)
 
         return np.array(data)
 
