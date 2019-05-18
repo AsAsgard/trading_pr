@@ -1,0 +1,101 @@
+<!-- templates/profile.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Welcome, {{ name }}!
+</h1>
+<style>
+	.ptr {
+		cursor: pointer;
+	}
+</style> 
+<script type="text/javascript" language="javascript">
+	var ch_disp = function( id )
+		{
+			var el = document.getElementById( id );
+			el.style.display = ( el.style.display == 'block' )? 'none' : 'block';
+		}
+</script>
+<body>
+	<div class="column is-4 is-offset-4">
+		<button CLASS="button is-outlined  is-large is-fullwidth" ONCLICK="ch_disp('A1')" STYLE="margin-bottom: 5px; font-weight: bold">
+			Work with files
+		</button>
+		<div ID="A1" STYLE="margin: 0 0 10px 10px; display:none">
+			<div class="box">
+				<div style="margin-bottom: 10px;">
+					<form>
+						<input class="button is-block is-info is-large is-fullwidth" value="Take file list" onClick='location.href="http://0.0.0.0:8087/profile/files/file_list"'>
+					</form>
+				</div>
+				<div style="margin-bottom: 10px;">
+					<form>
+						<input class="button is-block is-info is-large is-fullwidth" value="Upload file" onClick='location.href="http://0.0.0.0:8087/profile/files/upload_file"'>
+					</form>
+				</div>
+				<form>
+					<input class="button is-block is-info is-large is-fullwidth" value="File setup" onClick='location.href="http://0.0.0.0:8087/profile/files/file_setup"'>
+				</form>
+			</div>
+		</div>
+		<div class="button is-outlined  is-large is-fullwidth" onclick="ch_disp('A2')" style="margin-bottom: 5px; font-weight: bold">
+			Work with ML models
+		</div>
+		<div id="A2" style="margin: 0 0 10px 10px; display:none">
+			<div class="box">
+				<div style="margin-bottom: 10px;">
+					<form>
+						<input class="button is-block is-info is-large is-fullwidth" value="RUN" onClick='location.href="http://0.0.0.0:8087/profile/ml/run"'>
+					</form>
+				</div>
+				<div style="margin-bottom: 10px;">
+					<form>
+						<input class="button is-block is-info is-large is-fullwidth" value="Predictions list" onClick='location.href="http://0.0.0.0:8087/profile/ml/predictions_list"'>
+					</form>
+				</div>
+				<div class="button is-block is-info is-large is-fullwidth" onclick="ch_disp('A3')" style="margin-bottom: 10px">
+					Preprocessors
+				</div>
+				<div id="A3" style="margin: 0 0 10px 10px; display:none">
+					<div style="margin-bottom: 10px;">
+						<form>
+							<input class="button is-info is-rounded" value="Preprocessors list" onClick='location.href="http://0.0.0.0:8087/profile/ml/preproc_list"'>
+						</form>
+					</div>
+					<form>
+						<input class="button is-info is-rounded" value="Preprocessors setup" onClick='location.href="http://0.0.0.0:8087/profile/ml/preproc_setup"'>
+					</form>
+				</div>
+				<div class="button is-block is-info is-large is-fullwidth" onclick="ch_disp('A4')" style="margin-bottom: 10px">
+					Models
+				</div>
+				<div id="A4" style="margin: 0 0 10px 10px; display:none">
+					<div style="margin-bottom: 10px;">
+						<form>
+							<input class="button is-info is-rounded" value="Models list" onClick='location.href="http://0.0.0.0:8087/profile/ml/models_list"'>
+						</form>
+					</div>
+					<form>
+						<input class="button is-info is-rounded" value="Models setup" onClick='location.href="http://0.0.0.0:8087/profile/ml/models_setup"'>
+					</form>
+				</div>
+				<div class="button is-block is-info is-large is-fullwidth" onclick="ch_disp('A5')" style="margin-bottom: 10px">
+					Resources
+				</div>
+				<div id="A5" style="margin: 0 0 10px 10px; display:none">
+					<div style="margin-bottom: 10px;">
+						<form>
+							<input class="button is-info is-rounded" value="Resources list" onClick='location.href="http://0.0.0.0:8087/profile/ml/resources_list"'>
+						</form>
+					</div>
+					<form>
+						<input class="button is-info is-rounded" value="Resources setup" onClick='location.href="http://0.0.0.0:8087/profile/ml/resources_setup"'>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+{% endblock %}

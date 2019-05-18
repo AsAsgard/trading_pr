@@ -1,0 +1,69 @@
+<!-- templates/file_list.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+Predictions list:
+</h1>
+<style>
+	.ptr {
+		cursor: pointer;
+	}
+</style>
+<script type="text/javascript" language="javascript">
+	var ch_disp = function( id )
+		{
+			var el = document.getElementById( id );
+			el.style.display = ( el.style.display == 'block' )? 'none' : 'block';
+		}
+</script>
+<body>
+<table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+    <thead>
+        <tr>
+            <th>Model</th>
+            <th>Preprocessor</th>
+            <th>Resource</th>
+            <th>Datetime</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>ROC AUC</th>
+            <th>LOG LOSS</th>
+        </tr>
+    </thead>
+    {% for item in file_list %}
+    <tr>
+        <td>
+            {{item['model']}}
+        </td>
+        <td>
+            {{item['preprocessor']}}
+        </td>
+        <td>
+            {{item['resource']}}
+        </td>
+        <td>
+            {{item['datetime']}}
+        </td>
+        <td>
+            {{item['accuracy']}}
+        </td>
+        <td>
+            {{item['precision']}}
+        </td>
+        <td>
+            {{item['recall']}}
+        </td>
+        <td>
+            {{item['roc_auc']}}
+        </td>
+        <td>
+            {{item['log_loss']}}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+{% endblock %}

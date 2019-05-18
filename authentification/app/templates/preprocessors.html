@@ -1,0 +1,34 @@
+<!-- templates/profile.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Welcome, {{ name }}!
+</h1>
+<style>
+	.ptr {
+		cursor: pointer;
+	}
+</style>
+<script type="text/javascript" language="javascript">
+	var ch_disp = function( id )
+		{
+			var el = document.getElementById( id );
+			el.style.display = ( el.style.display == 'block' )? 'none' : 'block';
+		}
+</script>
+<body>
+	<div class="box">
+				<div style="margin-bottom: 10px;">
+					<form>
+						<input class="button is-block is-info is-large is-fullwidth" value="Preprocessors list" onClick='location.href="http://0.0.0.0:8087/profile/ml/preprocessors/list"'>
+					</form>
+				</div>
+				<form>
+				    <input class="button is-block is-info is-large is-fullwidth" value="Preprocessors setup" onClick='location.href="http://0.0.0.0:8087/profile/ml/preprocessors/setup"'>
+				</form>
+			</div>
+
+</body>
+{% endblock %}

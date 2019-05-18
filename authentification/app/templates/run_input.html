@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+<script type='text/javascript' src="http://code.highcharts.com/highcharts.js"></script>
+<script type='text/javascript' src="http://code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript">
+
+$(window).load(function(){
+
+$("#select").on('change', function(){
+    if($(this).val() == "DELETE"){
+        $("#file").hide();
+    }
+    else {
+        $("#file").show();
+    }
+})
+
+}); // Closes window.load
+</script>
+<body>
+	<div class="column is-4 is-offset-4">
+		<div class="box">
+            <form enctype="multipart/form-data" method="POST" action='/profile/ml/run/to'>
+            <div class="field">
+                <label class="label">Model</label>
+                    <div class="control">
+                        <input class="input" type="text" name="model">
+                    </div>
+            </div>
+            <div class="field">
+                <label class="label">Preprocessor</label>
+                    <div class="control">
+                        <input class="input" type="text" name="preprocessor">
+                    </div>
+            </div>
+            <div class="field">
+                <label class="label">Resource</label>
+                    <div class="control">
+                        <input class="input" type="text" name="resource">
+                    </div>
+            </div>
+            <div class="field">
+                <label class="label">Tickers</label>
+                    <div class="control">
+                        <input class="input" type="text" name="tickers" placeholder="sber apple etc">
+                    </div>
+            </div>
+            <div class="field">
+                <label class="label">Date from</label>
+                    <div class="control">
+                        <input class="input" type="text" name="datefrom" placeholder="YYYY.MM.DD">
+                    </div>
+            </div>
+            <div class="field">
+                <label class="label">Time from</label>
+                    <div class="control">
+                        <input class="input" type="text" name="timefrom" placeholder="hh:mm:ss">
+                    </div>
+            </div>
+            <div class="field">
+                <label class="label">Date to</label>
+                    <div class="control">
+                        <input class="input" type="text" name="dateto" placeholder="YYYY.MM.DD">
+                    </div>
+            </div>
+            <div class="field">
+                <label class="label">Time to</label>
+                    <div class="control">
+                        <input class="input" type="text" name="timeto" placeholder="hh:mm:ss">
+                    </div>
+            </div>
+            <button class="button is-primary">Run</button>
+            </form>
+        {% if ans %}
+            <div style="margin-bottom: 10px;">
+            <a class="has-text-success">Succes</a>
+            </div>
+        {% endif %}
+		</div>
+	</div>
+
+</body>
+{% endblock %}
